@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruota</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .container {
+            text-align: center;
+            margin: 20px;
+            position: relative;
+        }
+        
+        #wheelCanvas {
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: fit-content;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+        
+        .arrow {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-right: 40px solid #2196F3;
+            pointer-events: none;
+            border-radius: 3px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            margin: 0 5px;
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #1976D2;
+        }
+        
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        
+        #hideNumberButton {
+            display: none;
+            margin-top: 10px;
+        }
+        
+        #numberEditor {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 50px;
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-right: 20px;
+        }
+        
+        .number-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .number-controls button {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        
+        .number-item input[type="checkbox"] {
+            display: none;
+        }
+        
+        .number-item label {
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 25px;
+            display: inline-block;
+        }
+        
+        .number-item label:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #2196F3;
+            border-radius: 50%;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .number-item input[type="checkbox"]:checked + label:before {
+            background: #2196F3;
+        }
+        
+        .number-item label:after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 4px;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .number-item input[type="checkbox"]:checked + label:after {
+            opacity: 1;
+        }
+        
+        .number-item {
+            margin: 8px;
+            padding: 5px;
+            display: inline-block;
+        }
+        
+        #numberList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .editor-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 10px;
+        }
+        
+        #resetNumbers {
+            background-color: #dc3545;
+        }
+        
+        #resetNumbers:hover {
+            background-color: #c82333;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        h3 {
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        /* Stile speciale per i numeri 2, 3 e 23 */
+        .number-item input[id="num1"] + label:before,  /* per il numero 2 */
+        .number-item input[id="num2"] + label:before,  /* per il numero 3 */
+        .number-item input[id="num22"] + label:before  /* per il numero 23 */ {
+            border-color: #ff9800;
+        }
+
+        .number-item input[id="num1"]:checked + label:before,
+        .number-item input[id="num2"]:checked + label:before,
+        .number-item input[id="num22"]:checked + label:before {
+            background: #ff9800;
+        }
+        
+        @media (max-width: 600px) {
+            #wheelCanvas {
+                width: 300px;
+                height: 300px;
+            }
+            
+            .arrow {
+                right: -40px;
+                border-top: 15px solid transparent;
+                border-bottom: 15px solid transparent;
+                border-right: 30px solid #2196F3;
+                border-radius: 3px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin: 5px;
+            }
+            
+            #result {
+                font-size: 20px;
+            }
+            
+            .number-item label {
+                font-size: 14px;
+                padding-left: 30px;
+            }
+            
+            .number-item label:before {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .number-item label:after {
+                left: 6px;
+                top: 3px;
+                width: 5px;
+                height: 9px;
+            }
+            
+            #numberEditor {
+                width: 90%;
+                padding: 15px;
+            }
+            
+            #numberList {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="wheel-container">
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <div class="arrow"></div>
+        </div>
+        <div class="controls">
+            <button id="spinButton">Gira la ruota</button>
+            <button id="editButton">Modifica numeri</button>
+            <button id="hideNumberButton">Nascondi numero uscito</button>
+            <button id="betaButton">Beta version 0.2</button>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div id="numberEditor">
+        <div class="editor-header">
+            <h3>Seleziona i numeri da mostrare</h3>
+            <div class="number-controls">
+                <button id="removeNumber">-</button>
+                <button id="addNumber">+</button>
+            </div>
+        </div>
+        <div id="numberList"></div>
+        <div class="editor-footer">
+            <button id="resetNumbers">Ripristina tutti i numeri</button>
+            <button id="closeEditor">Chiudi</button>
+        </div>
+    </div>
+    <script src="funcionalities.js"></script>
+</body>
+</html>
