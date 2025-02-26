@@ -114,7 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
     }
 
+    // Aggiungi evento click alla ruota
+    wheelContainer.addEventListener('click', spinWheel);
+    
+    // Mantieni anche il pulsante spin per compatibilità
     spinButton.addEventListener('click', spinWheel);
+    
     editButton.addEventListener('click', () => {
         overlay.style.display = 'block';
         numberEditor.style.display = 'block';
