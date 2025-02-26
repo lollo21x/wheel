@@ -98,6 +98,11 @@
             background-color: #dc3545;
         }
         
+        #toggleNames {
+            background-color: #9C27B0;
+            margin-left: 10px;
+        }
+        
         #numberEditor {
             display: none;
             position: fixed;
@@ -106,11 +111,12 @@
             transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
-            border-radius: 50px;
+            border-radius: 20px;
             width: 80%;
             max-width: 900px;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
         
         .editor-header {
@@ -148,6 +154,10 @@
             font-size: 16px;
             line-height: 25px;
             display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 180px;
         }
         
         .number-item label:before {
@@ -193,7 +203,7 @@
         
         #numberList {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             gap: 15px;
             padding: 20px;
             max-height: 60vh;
@@ -206,6 +216,7 @@
             gap: 10px;
             margin-top: 20px;
             padding-top: 10px;
+            border-top: 1px solid #eee;
         }
         
         #resetNumbers {
@@ -225,6 +236,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px);
         }
         
         h3 {
@@ -248,7 +260,6 @@
         @media (max-width: 600px) {
             .main-title {
                 font-size: 24px;
-                color: bla
             }
             
             #wheelCanvas {
@@ -277,6 +288,7 @@
             .number-item label {
                 font-size: 14px;
                 padding-left: 30px;
+                max-width: 150px;
             }
             
             .number-item label:before {
@@ -297,7 +309,7 @@
             }
             
             #numberList {
-                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: 10px;
                 padding: 10px;
             }
@@ -306,16 +318,16 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="main-title">Ruota della 3D</h1>
+        <h1 class="main-title">Ruota della Fortuna 3D</h1>
         <div class="wheel-container">
             <canvas id="wheelCanvas" width="500" height="500"></canvas>
             <div class="arrow"></div>
         </div>
         <div class="controls">
             <button id="spinButton">Gira la ruota</button>
-            <button id="editButton">Modifica numeri</button>
-            <button id="hideNumberButton">Nascondi numero uscito</button>
-            <button id="betaButton">Beta version 0.3</button>
+            <button id="editButton">Modifica partecipanti</button>
+            <button id="hideNumberButton">Nascondi partecipante uscito</button>
+            <button id="betaButton">Beta version 0.4</button>
         </div>
         <div id="result"></div>
     </div>
@@ -323,7 +335,7 @@
     <div class="overlay" id="overlay"></div>
     <div id="numberEditor">
         <div class="editor-header">
-            <h3>Seleziona i numeri da mostrare</h3>
+            <h3>Seleziona i partecipanti da mostrare</h3>
             <div class="number-controls">
                 <button id="removeNumber">-</button>
                 <button id="addNumber">+</button>
@@ -331,7 +343,7 @@
         </div>
         <div id="numberList"></div>
         <div class="editor-footer">
-            <button id="resetNumbers">Ripristina tutti i numeri</button>
+            <button id="resetNumbers">Ripristina tutti i partecipanti</button>
             <button id="closeEditor">Chiudi</button>
         </div>
     </div>
