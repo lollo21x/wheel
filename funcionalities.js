@@ -61,6 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Aggiungi un flag per indicare se stiamo mostrando nomi o numeri
     let showNames = false;
+    
+    // Dimensione originale del canvas
+    let originalCanvasSize = {
+        width: canvas.style.width,
+        height: canvas.style.height
+    };
 
     let allNumbers = JSON.parse(localStorage.getItem('wheelNumbers')) || Array.from({ length: 26 }, (_, i) => ({
         value: i + 1,
@@ -83,7 +89,15 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function getActiveNumbers() {
-        return allNumbers.filter(n => n.active);
+        if (showNames) {
+            // In modalità nomi, mostra solo le prime 26 persone (se esistono)
+            return allNumbers
+                .filter(n => n.active)
+                .filter((n, idx) => idx < 26);
+        } else {
+            // In modalità numeri, mostra tutti i numeri attivi
+            return allNumbers.filter(n => n.active);
+        }
     }
 
     function drawWheel() {
@@ -95,7 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const rect = canvas.getBoundingClientRect();
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        const radius = Math.min(centerX, centerY) - 10;
+        
+        // Aumenta il raggio quando si mostrano i nomi
+        const radius = showNames 
+            ? Math.min(centerX, centerY) - 5
+            : Math.min(centerX, centerY) - 10;
 
         ctx.clearRect(0, 0, rect.width, rect.height);
         ctx.save();
@@ -124,17 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Adatta la dimensione del testo in base alla lunghezza
             if (showNames) {
-                const fontSize = Math.max(10, Math.min(16, 300 / displayText.length));
-                ctx.font = `${fontSize}px Montserrat`;
+                // Ridotto il font massimo per i nomi per migliorare la leggibilità
+                const fontSize = Math.max(10, Math.min(14, 280 / displayText.length));
+                ctx.font = `bold ${fontSize}px Montserrat`;
             } else {
-                ctx.font = '20px Montserrat';
+                ctx.font = 'bold 20px Montserrat';
             }
             
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
             
             // Se sono nomi, posiziona il testo più vicino al bordo esterno
-            const textDistance = showNames ? radius - 20 : radius - 30;
+            const textDistance = showNames ? radius - 15 : radius - 30;
             ctx.fillText(displayText, textDistance, 0);
             ctx.restore();
         }
@@ -171,6 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const sliceAngle = (2 * Math.PI) / activeItems.length;
                 const selectedIndex = Math.floor(((2 * Math.PI - finalAngle)) / sliceAngle) % activeItems.length;
                 lastSelectedNumber = activeItems[selectedIndex];
+                
+                // Aumenta la dimensione del testo del risultato
+                resultDisplay.style.fontSize = showNames ? '28px' : '24px';
+                resultDisplay.style.fontWeight = 'bold';
                 
                 const resultText = showNames 
                     ? `È uscito: ${lastSelectedNumber.name}`
@@ -209,6 +232,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Funzione per adattare la dimensione della ruota in base alla visualizzazione
+    function adjustWheelSize() {
+        if (showNames) {
+            // Aumenta la dimensione del canvas quando mostriamo i nomi
+            canvas.style.width = '550px';
+            canvas.style.height = '550px';
+        } else {
+            // Ripristina la dimensione originale
+            canvas.style.width = originalCanvasSize.width;
+            canvas.style.height = originalCanvasSize.height;
+        }
+        setupHiDPICanvas();
+        drawWheel();
+    }
+
     // Crea il pulsante per cambiare tra nomi e numeri
     function createToggleButton() {
         // Controlla se il pulsante esiste già
@@ -228,11 +266,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNames = !showNames;
                 toggleButton.textContent = showNames ? 'Mostra numeri' : 'Mostra nomi';
                 
+                // Adatta la dimensione del numberEditor in base alla modalità
+                if (showNames) {
+                    numberList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
+                    numberEditor.style.maxWidth = '1000px';
+                } else {
+                    numberList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+                    numberEditor.style.maxWidth = '900px';
+                }
+                
                 // Nascondi o mostra i pulsanti +/- a seconda della modalità
                 addNumberBtn.style.display = showNames ? 'none' : 'block';
                 removeNumberBtn.style.display = showNames ? 'none' : 'block';
                 
-                drawWheel();
+                // Adatta la dimensione della ruota
+                adjustWheelSize();
+                
                 updateNumberList();
                 hasChanges = true;
             });
@@ -241,7 +290,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateNumberList() {
         numberList.innerHTML = '';
-        allNumbers.forEach((num, index) => {
+        
+        // Filtra gli elementi in base alla modalità
+        let itemsToShow;
+        if (showNames) {
+            // In modalità nomi, mostra solo le prime 26 persone
+            itemsToShow = allNumbers.slice(0, 26);
+        } else {
+            // In modalità numeri, mostra tutti i numeri
+            itemsToShow = allNumbers;
+        }
+        
+        itemsToShow.forEach((num, index) => {
             const div = document.createElement('div');
             div.className = 'number-item';
             
@@ -321,6 +381,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     ensureNamesInData();
+    
+    // Salva la dimensione originale del canvas
+    originalCanvasSize = {
+        width: canvas.style.width,
+        height: canvas.style.height
+    };
+    
     drawWheel();
 
     if (hideNumberButton) {
