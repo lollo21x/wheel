@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruota</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Ruota della fortuna 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             font-family: 'Montserrat', sans-serif;
@@ -14,6 +14,13 @@
             text-align: center;
             margin: 20px;
             position: relative;
+        }
+        
+        .main-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 40px;
+            color: #2196F3;
+            margin-bottom: 20px;
         }
         
         #wheelCanvas {
@@ -26,6 +33,11 @@
             width: fit-content;
             margin: 0 auto;
             cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .wheel-container:hover {
+            transform: scale(1.02);
         }
         
         .arrow {
@@ -56,11 +68,11 @@
             border-radius: 50px;
             font-size: 16px;
             font-weight: 500;
-            transition: background-color 0.3s ease;
+            transition: transform 0.3s ease;
         }
         
         button:hover {
-            background-color: #1976D2;
+            transform: scale(1.04);
         }
         
         #result {
@@ -72,6 +84,18 @@
         #hideNumberButton {
             display: none;
             margin-top: 10px;
+        }
+
+        #betaButton {
+            background-color: #b0b0b0;
+        }
+
+        #addNumber {
+            background-color: #14A500;
+        }
+
+        #removeNumber {
+            background-color: #dc3545;
         }
         
         #numberEditor {
@@ -186,10 +210,11 @@
         
         #resetNumbers {
             background-color: #dc3545;
+            transition: transform 0.3s ease;
         }
         
         #resetNumbers:hover {
-            background-color: #c82333;
+            transform: scale(1.02);
         }
         
         .overlay {
@@ -211,16 +236,21 @@
         .number-item input[id="num1"] + label:before,  /* per il numero 2 */
         .number-item input[id="num2"] + label:before,  /* per il numero 3 */
         .number-item input[id="num22"] + label:before  /* per il numero 23 */ {
-            border-color: #ff9800;
+            border-color: #14A500;
         }
 
         .number-item input[id="num1"]:checked + label:before,
         .number-item input[id="num2"]:checked + label:before,
         .number-item input[id="num22"]:checked + label:before {
-            background: #ff9800;
+            background: #14A500;
         }
         
         @media (max-width: 600px) {
+            .main-title {
+                font-size: 24px;
+                color: bla
+            }
+            
             #wheelCanvas {
                 width: 300px;
                 height: 300px;
@@ -276,6 +306,7 @@
 </head>
 <body>
     <div class="container">
+        <h1 class="main-title">Ruota della 3D</h1>
         <div class="wheel-container">
             <canvas id="wheelCanvas" width="500" height="500"></canvas>
             <div class="arrow"></div>
@@ -284,7 +315,7 @@
             <button id="spinButton">Gira la ruota</button>
             <button id="editButton">Modifica numeri</button>
             <button id="hideNumberButton">Nascondi numero uscito</button>
-            <button id="betaButton">Beta version 0.2</button>
+            <button id="betaButton">Beta version 0.3</button>
         </div>
         <div id="result"></div>
     </div>
