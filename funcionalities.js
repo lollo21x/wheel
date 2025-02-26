@@ -14,10 +14,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeNumberBtn = document.getElementById('removeNumber');
     const resetNumbers = document.getElementById('resetNumbers');
 
+    // Migliora la qualità del canvas per schermi ad alta risoluzione
+    function setupHiDPICanvas() {
+        const pixelRatio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        
+        canvas.width = rect.width * pixelRatio;
+        canvas.height = rect.height * pixelRatio;
+        canvas.style.width = `${rect.width}px`;
+        canvas.style.height = `${rect.height}px`;
+        
+        ctx.scale(pixelRatio, pixelRatio);
+    }
+    
+    setupHiDPICanvas();
+    
+    // Array con i nomi e cognomi associati ai numeri
+    const namesArray = [
+        "Theodore Ambrogi",
+        "Lorenzo Bacalini",
+        "Anamika Badial",
+        "Sara Burzacca",
+        "Alessia Buselli",
+        "Arianna Buselli",
+        "Lorenzo Cingolani",
+        "Gabriele Dipasquale",
+        "Alessandro Eleuteri",
+        "Riccardo Gerini",
+        "Mario Gulino",
+        "Zhennan Hu",
+        "Mariana Lopez",
+        "Mose' Mariangeli",
+        "Angela Mazzarella",
+        "Elena Monno",
+        "Federica Nocerino",
+        "Riccardo Persigilli",
+        "Marco Radatti",
+        "Federico Romaldini",
+        "Maksym Sachuk",
+        "Andrea Santini",
+        "Simone Tardini",
+        "Davide Tonti",
+        "Igli Xhepa",
+        "Jiayi Xiong"
+    ];
+
+    // Aggiungi un flag per indicare se stiamo mostrando nomi o numeri
+    let showNames = false;
+
     let allNumbers = JSON.parse(localStorage.getItem('wheelNumbers')) || Array.from({ length: 26 }, (_, i) => ({
         value: i + 1,
+        name: namesArray[i] || `Person ${i+1}`,
         active: true
     }));
+    
     let isSpinning = false;
     let angle = Math.random() * 2 * Math.PI;
     let lastSelectedNumber = null;
@@ -33,17 +83,23 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function getActiveNumbers() {
-        return allNumbers.filter(n => n.active).map(n => n.value);
+        return allNumbers.filter(n => n.active);
     }
 
     function drawWheel() {
-        const activeNumbers = getActiveNumbers();
-        const numSlices = activeNumbers.length;
+        const activeItems = getActiveNumbers();
+        const numSlices = activeItems.length;
         const sliceAngle = (2 * Math.PI) / numSlices;
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Utilizza il rect reale per calcolare il centro e il raggio
+        const rect = canvas.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const radius = Math.min(centerX, centerY) - 10;
+
+        ctx.clearRect(0, 0, rect.width, rect.height);
         ctx.save();
-        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.translate(centerX, centerY);
         ctx.rotate(angle);
 
         for (let i = 0; i < numSlices; i++) {
@@ -52,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.arc(0, 0, canvas.width / 2 - 10, startAngle, endAngle);
+            ctx.arc(0, 0, radius, startAngle, endAngle);
             ctx.lineTo(0, 0);
             ctx.fillStyle = pastelColors[i % pastelColors.length];
             ctx.fill();
@@ -62,10 +118,24 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.save();
             ctx.rotate(startAngle + sliceAngle / 2);
             ctx.fillStyle = 'black';
-            ctx.font = '20px Montserrat';
+            
+            // Determina se visualizzare nomi o numeri
+            const displayText = showNames ? activeItems[i].name : activeItems[i].value.toString();
+            
+            // Adatta la dimensione del testo in base alla lunghezza
+            if (showNames) {
+                const fontSize = Math.max(10, Math.min(16, 300 / displayText.length));
+                ctx.font = `${fontSize}px Montserrat`;
+            } else {
+                ctx.font = '20px Montserrat';
+            }
+            
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
-            ctx.fillText(activeNumbers[i], canvas.width / 2 - 30, 0);
+            
+            // Se sono nomi, posiziona il testo più vicino al bordo esterno
+            const textDistance = showNames ? radius - 20 : radius - 30;
+            ctx.fillText(displayText, textDistance, 0);
             ctx.restore();
         }
         ctx.restore();
@@ -97,12 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 isSpinning = false;
                 const finalAngle = angle % (2 * Math.PI);
-                const activeNumbers = getActiveNumbers();
-                const sliceAngle = (2 * Math.PI) / activeNumbers.length;
-                const selectedIndex = Math.floor(((2 * Math.PI - finalAngle)) / sliceAngle) % activeNumbers.length;
-                lastSelectedNumber = activeNumbers[selectedIndex];
+                const activeItems = getActiveNumbers();
+                const sliceAngle = (2 * Math.PI) / activeItems.length;
+                const selectedIndex = Math.floor(((2 * Math.PI - finalAngle)) / sliceAngle) % activeItems.length;
+                lastSelectedNumber = activeItems[selectedIndex];
                 
-                resultDisplay.textContent = `È uscito il numero: ${lastSelectedNumber}`;
+                const resultText = showNames 
+                    ? `È uscito: ${lastSelectedNumber.name}`
+                    : `È uscito il numero: ${lastSelectedNumber.value}`;
+                
+                resultDisplay.textContent = resultText;
                 const hideBtn = document.getElementById('hideNumberButton');
                 if (hideBtn) hideBtn.style.display = 'inline-block';
             }
@@ -135,14 +209,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Crea il pulsante per cambiare tra nomi e numeri
+    function createToggleButton() {
+        // Controlla se il pulsante esiste già
+        let toggleButton = document.getElementById('toggleNames');
+        
+        if (!toggleButton) {
+            toggleButton = document.createElement('button');
+            toggleButton.id = 'toggleNames';
+            toggleButton.textContent = 'Mostra nomi';
+            toggleButton.style.backgroundColor = '#9C27B0';
+            
+            // Aggiungi il pulsante nella sezione editor-header
+            const editorHeader = document.querySelector('.editor-header');
+            editorHeader.appendChild(toggleButton);
+            
+            toggleButton.addEventListener('click', () => {
+                showNames = !showNames;
+                toggleButton.textContent = showNames ? 'Mostra numeri' : 'Mostra nomi';
+                
+                // Nascondi o mostra i pulsanti +/- a seconda della modalità
+                addNumberBtn.style.display = showNames ? 'none' : 'block';
+                removeNumberBtn.style.display = showNames ? 'none' : 'block';
+                
+                drawWheel();
+                updateNumberList();
+                hasChanges = true;
+            });
+        }
+    }
+
     function updateNumberList() {
         numberList.innerHTML = '';
         allNumbers.forEach((num, index) => {
             const div = document.createElement('div');
             div.className = 'number-item';
+            
+            const displayText = showNames ? num.name : `${num.value}`;
+            
             div.innerHTML = `
                 <input type="checkbox" id="num${index}" ${num.active ? 'checked' : ''}>
-                <label for="num${index}">${num.value}</label>
+                <label for="num${index}">${displayText}</label>
             `;
             const checkbox = div.querySelector('input');
             checkbox.addEventListener('change', () => {
@@ -152,11 +259,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             numberList.appendChild(div);
         });
+        
+        // Assicurati che il pulsante di toggle esista
+        createToggleButton();
     }
 
     addNumberBtn.addEventListener('click', () => {
         const newNumber = allNumbers.length + 1;
-        allNumbers.push({ value: newNumber, active: true });
+        allNumbers.push({ 
+            value: newNumber, 
+            name: `Person ${newNumber}`,
+            active: true 
+        });
         updateNumberList();
         hasChanges = true;
         localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
@@ -190,12 +304,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Assicura compatibilità con dati esistenti
+    function ensureNamesInData() {
+        let needsUpdate = false;
+        
+        allNumbers.forEach((item, index) => {
+            if (!item.hasOwnProperty('name')) {
+                item.name = namesArray[index] || `Person ${index+1}`;
+                needsUpdate = true;
+            }
+        });
+        
+        if (needsUpdate) {
+            localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+        }
+    }
+    
+    ensureNamesInData();
     drawWheel();
 
     if (hideNumberButton) {
         hideNumberButton.onclick = function() {
             if (lastSelectedNumber !== null) {
-                const index = allNumbers.findIndex(n => n.value === lastSelectedNumber);
+                const index = allNumbers.findIndex(n => n.value === lastSelectedNumber.value);
                 if (index !== -1) {
                     allNumbers[index].active = false;
                     drawWheel();
@@ -208,4 +339,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
+    
+    // Gestione del ridimensionamento della finestra
+    window.addEventListener('resize', () => {
+        setupHiDPICanvas();
+        drawWheel();
+    });
 });
