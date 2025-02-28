@@ -420,14 +420,17 @@ document.addEventListener('DOMContentLoaded', () => {
             Permette di aggiungere o rimuovere numeri in qualsiasi momento, nascondere quelli già estratti ed eventualmente ripristinare la configurazione iniziale.
             <br><br>
             Il design utilizza colori pastello ed è ottimizzato per un'interfaccia semplice e intuitiva, accessibile da qualsiasi dispositivo. 
-            Se vuoi verificare anche tu, è disponibile il codice open-source su Github cliccando il tasto apposito.
+            Se vuoi verificare anche tu, è disponibile il codice open-source su GitHub cliccando il tasto apposito.
+            <br><br>
+            Made by <a href="https://lollo.framer.website" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v0.7.1
         `;
     }
+
     
     // Gestione click sul pulsante GitHub
     if (githubIcon) {
         githubIcon.addEventListener('click', () => {
-            window.open('https://github.com', '_blank');
+            window.open('https://github.com/lollo21x/wheel', '_blank');
         });
     }
     
