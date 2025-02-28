@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getActiveNumbers() {
         if (showNames) {
-            // In modalità nomi, mostra solo le prime 26 persone (se esistono)
+            // In modalità nomi, mostra tutte le 26 persone (se esistono)
             return allNumbers
                 .filter(n => n.active)
                 .filter((n, idx) => idx < 26);
@@ -110,12 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         
-        // Aumenta il raggio quando si mostrano i nomi
+        // Aumenta il raggio per evitare l'effetto "tagliato"
         const radius = showNames 
-            ? Math.min(centerX, centerY) - 5
-            : Math.min(centerX, centerY) - 10;
+            ? Math.min(centerX, centerY) * 0.95
+            : Math.min(centerX, centerY) * 0.90;
 
-        ctx.clearRect(0, 0, rect.width, rect.height);
+        ctx.clearRect(0, 0, rect.width * 2, rect.height * 2); // Pulisci l'intera area
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate(angle);
@@ -176,12 +176,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function animate() {
             const elapsed = Date.now() - startTime;
-            const progress = elapsed / spinDuration;
-            const easing = easeInOutCubic(progress);
+            const progress = Math.min(elapsed / spinDuration, 1); // Assicura che non superi 1
+            const easing = easeOutQuart(progress); // Cambiato a una funzione di easing più fluida
 
+            angle = initialAngle + (totalRotation * easing);
+            drawWheel();
+            
             if (progress < 1) {
-                angle = initialAngle + (totalRotation * easing);
-                drawWheel();
                 requestAnimationFrame(animate);
             } else {
                 isSpinning = false;
@@ -196,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultDisplay.style.fontWeight = 'bold';
                 
                 const resultText = showNames 
-                    ? `È uscito: ${lastSelectedNumber.name}`
+                    ? `È uscito/a: ${lastSelectedNumber.name}`
                     : `È uscito il numero: ${lastSelectedNumber.value}`;
                 
                 resultDisplay.textContent = resultText;
@@ -207,8 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
         animate();
     }
 
-    function easeInOutCubic(x) {
-        return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    // Funzione di easing migliorata per una rotazione più fluida
+    function easeOutQuart(x) {
+        return 1 - Math.pow(1 - x, 4);
     }
 
     // Aggiungi evento click alla ruota
@@ -249,81 +251,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Crea il pulsante per cambiare tra nomi e numeri
     function createToggleButton() {
-        // Controlla se il pulsante esiste già
-        let toggleButton = document.getElementById('toggleNames');
+        const toggleButton = document.getElementById('toggleNames');
         
-        if (!toggleButton) {
-            toggleButton = document.createElement('button');
-            toggleButton.id = 'toggleNames';
-            toggleButton.textContent = 'Mostra nomi';
-            toggleButton.style.backgroundColor = '#9C27B0';
+        if (toggleButton) {
+            // Rimuovi tutti gli event listener esistenti
+            const newToggleButton = toggleButton.cloneNode(true);
+            toggleButton.parentNode.replaceChild(newToggleButton, toggleButton);
             
-            // Aggiungi il pulsante nella sezione editor-header
-            const editorHeader = document.querySelector('.editor-header');
-            editorHeader.appendChild(toggleButton);
-            
-            toggleButton.addEventListener('click', () => {
+            newToggleButton.addEventListener('click', () => {
                 showNames = !showNames;
-                toggleButton.textContent = showNames ? 'Mostra numeri' : 'Mostra nomi';
+                newToggleButton.textContent = showNames ? 'Mostra numeri' : 'Mostra nomi';
                 
-                // Adatta la dimensione del numberEditor in base alla modalità
+                // Aggiorna prima lo stato
                 if (showNames) {
                     numberList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
                     numberEditor.style.maxWidth = '1000px';
+                    addNumberBtn.style.display = 'none';
+                    removeNumberBtn.style.display = 'none';
                 } else {
                     numberList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
                     numberEditor.style.maxWidth = '900px';
+                    addNumberBtn.style.display = 'inline-flex';
+                    removeNumberBtn.style.display = 'inline-flex';
                 }
                 
-                // Nascondi o mostra i pulsanti +/- a seconda della modalità
-                addNumberBtn.style.display = showNames ? 'none' : 'block';
-                removeNumberBtn.style.display = showNames ? 'none' : 'block';
-                
-                // Adatta la dimensione della ruota
-                adjustWheelSize();
-                
+                // Poi aggiorna la visualizzazione
                 updateNumberList();
-                hasChanges = true;
+                adjustWheelSize();
+                drawWheel();
             });
         }
     }
 
+    // Rimuovi la chiamata a createToggleButton da updateNumberList
     function updateNumberList() {
         numberList.innerHTML = '';
-        
-        // Filtra gli elementi in base alla modalità
-        let itemsToShow;
-        if (showNames) {
-            // In modalità nomi, mostra solo le prime 26 persone
-            itemsToShow = allNumbers.slice(0, 26);
-        } else {
-            // In modalità numeri, mostra tutti i numeri
-            itemsToShow = allNumbers;
-        }
+        // Assicurati di mostrare tutte le 26 persone in modalità nomi
+        let itemsToShow = showNames ? allNumbers.slice(0, 26) : allNumbers;
         
         itemsToShow.forEach((num, index) => {
             const div = document.createElement('div');
             div.className = 'number-item';
-            
             const displayText = showNames ? num.name : `${num.value}`;
             
             div.innerHTML = `
                 <input type="checkbox" id="num${index}" ${num.active ? 'checked' : ''}>
                 <label for="num${index}">${displayText}</label>
             `;
+            
             const checkbox = div.querySelector('input');
             checkbox.addEventListener('change', () => {
-                allNumbers[index].active = checkbox.checked;
+                // Assicurati di aggiornare l'elemento corretto nell'array allNumbers
+                const targetIndex = showNames ? index : index;
+                allNumbers[targetIndex].active = checkbox.checked;
                 hasChanges = true;
                 localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+                drawWheel();
             });
+            
             numberList.appendChild(div);
         });
-        
-        // Assicurati che il pulsante di toggle esista
-        createToggleButton();
     }
 
+    // Aggiungi questa chiamata dopo la definizione di tutte le funzioni
+    createToggleButton();
     addNumberBtn.addEventListener('click', () => {
         const newNumber = allNumbers.length + 1;
         allNumbers.push({ 
@@ -412,4 +403,47 @@ document.addEventListener('DOMContentLoaded', () => {
         setupHiDPICanvas();
         drawWheel();
     });
+    
+    // Gestione dei pulsanti footer
+    const githubIcon = document.getElementById('githubIcon');
+    const infoIcon = document.getElementById('infoIcon');
+    const infoModal = document.getElementById('infoModal');
+    const closeInfoModal = document.getElementById('closeInfoModal');
+    
+    // Imposta il testo del modal info
+    const infoContent = document.querySelector('#infoModal p');
+    if (infoContent) {
+        infoContent.innerHTML = `
+            La ruota della classe 3D è uno strumento utile per selezionare casualmente gli alunni da interrogare. 
+            Utilizza un algoritmo che garantisce una rotazione imprevedibile, con velocità variabile ed effetto easing per un'estrazione equa.
+            <br><br>
+            Permette di aggiungere o rimuovere numeri in qualsiasi momento, nascondere quelli già estratti ed eventualmente ripristinare la configurazione iniziale.
+            <br><br>
+            Il design utilizza colori pastello ed è ottimizzato per un'interfaccia semplice e intuitiva, accessibile da qualsiasi dispositivo. 
+            Se vuoi verificare anche tu, è disponibile il codice open-source su Github cliccando il tasto apposito.
+        `;
+    }
+    
+    // Gestione click sul pulsante GitHub
+    if (githubIcon) {
+        githubIcon.addEventListener('click', () => {
+            window.open('https://github.com', '_blank');
+        });
+    }
+    
+    // Gestione click sul pulsante Info
+    if (infoIcon) {
+        infoIcon.addEventListener('click', () => {
+            overlay.style.display = 'block';
+            infoModal.style.display = 'block';
+        });
+    }
+    
+    // Gestione chiusura modal info
+    if (closeInfoModal) {
+        closeInfoModal.addEventListener('click', () => {
+            overlay.style.display = 'none';
+            infoModal.style.display = 'none';
+        });
+    }
 });
