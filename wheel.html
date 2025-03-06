@@ -84,7 +84,7 @@
         }
         
         #result {
-            margin-top: 20px;
+            margin-bottom: 20px;
             font-size: 24px;
             font-weight: 500;
         }
@@ -319,7 +319,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(8px);
             z-index: 1000;
         }
         
@@ -473,6 +473,7 @@
 <body>
     <div class="container">
         <h1 class="main-title">Ruota della fortuna 3D</h1>
+        <div id="result"></div>
         <div class="wheel-container">
             <canvas id="wheelCanvas" width="500" height="500"></canvas>
             <div class="arrow"></div>
@@ -481,9 +482,8 @@
             <button id="spinButton">Gira la ruota</button>
             <button id="editButton">Modifica partecipanti</button>
             <button id="hideNumberButton">Nascondi partecipante uscito</button>
-            <button id="betaButton">Beta version 0.7.1</button>
+            <button id="betaButton">Versione 1.0</button>
         </div>
-        <div id="result"></div>
     </div>
 
     <div class="footer-icons">
