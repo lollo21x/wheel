@@ -14,17 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeNumberBtn = document.getElementById('removeNumber');
     const resetNumbers = document.getElementById('resetNumbers');
 
-    // Migliora la qualità del canvas per schermi ad alta risoluzione
+    // Modifica per compatibilità: Semplifica la configurazione del canvas
     function setupHiDPICanvas() {
-        const pixelRatio = window.devicePixelRatio || 1;
-        const rect = canvas.getBoundingClientRect();
+        // Usa un valore di pixel ratio più sicuro per dispositivi vecchi
+        const pixelRatio = 1;
         
-        canvas.width = rect.width * pixelRatio;
-        canvas.height = rect.height * pixelRatio;
-        canvas.style.width = `${rect.width}px`;
-        canvas.style.height = `${rect.height}px`;
+        // Imposta dimensioni fisse per evitare problemi di rendering
+        canvas.width = 500;
+        canvas.height = 500;
         
-        ctx.scale(pixelRatio, pixelRatio);
+        // Non usare scale per evitare problemi su dispositivi vecchi
+        // ctx.scale(pixelRatio, pixelRatio);
     }
     
     setupHiDPICanvas();
@@ -64,15 +64,39 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Dimensione originale del canvas
     let originalCanvasSize = {
-        width: canvas.style.width,
-        height: canvas.style.height
+        width: "500px",
+        height: "500px"
     };
 
-    let allNumbers = JSON.parse(localStorage.getItem('wheelNumbers')) || Array.from({ length: 26 }, (_, i) => ({
-        value: i + 1,
-        name: namesArray[i] || `Person ${i+1}`,
-        active: true
-    }));
+    // Modifica per compatibilità: Usa try-catch per gestire errori di localStorage
+    let allNumbers = [];
+    try {
+        const storedNumbers = localStorage.getItem('wheelNumbers');
+        if (storedNumbers) {
+            allNumbers = JSON.parse(storedNumbers);
+        } else {
+            // Inizializza l'array se non esiste
+            allNumbers = [];
+            for (var i = 0; i < 26; i++) {
+                allNumbers.push({
+                    value: i + 1,
+                    name: namesArray[i] || "Person " + (i+1),
+                    active: true
+                });
+            }
+        }
+    } catch (e) {
+        console.log("Error loading data:", e);
+        // Fallback se localStorage non funziona
+        allNumbers = [];
+        for (var i = 0; i < 26; i++) {
+            allNumbers.push({
+                value: i + 1,
+                name: namesArray[i] || "Person " + (i+1),
+                active: true
+            });
+        }
+    }
     
     let isSpinning = false;
     let angle = Math.random() * 2 * Math.PI;
@@ -89,38 +113,61 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function getActiveNumbers() {
+        // Modifica per compatibilità: Usa cicli for tradizionali invece di filter
+        var active = [];
         if (showNames) {
             // In modalità nomi, mostra tutte le 26 persone (se esistono)
-            return allNumbers
-                .filter(n => n.active)
-                .filter((n, idx) => idx < 26);
+            for (var i = 0; i < allNumbers.length && i < 26; i++) {
+                if (allNumbers[i].active) {
+                    active.push(allNumbers[i]);
+                }
+            }
         } else {
             // In modalità numeri, mostra tutti i numeri attivi
-            return allNumbers.filter(n => n.active);
+            for (var i = 0; i < allNumbers.length; i++) {
+                if (allNumbers[i].active) {
+                    active.push(allNumbers[i]);
+                }
+            }
         }
+        return active;
     }
 
     function drawWheel() {
         const activeItems = getActiveNumbers();
         const numSlices = activeItems.length;
         const sliceAngle = (2 * Math.PI) / numSlices;
-
-        // Utilizza il rect reale per calcolare il centro e il raggio
-        const rect = canvas.getBoundingClientRect();
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+    
+        // Usa dimensioni fisse per il canvas
+        const centerX = 250;
+        const centerY = 250;
         
-        // Aumenta il raggio per evitare l'effetto "tagliato"
-        const radius = showNames 
-            ? Math.min(centerX, centerY) * 0.95
-            : Math.min(centerX, centerY) * 0.90;
-
-        ctx.clearRect(0, 0, rect.width * 2, rect.height * 2); // Pulisci l'intera area
+        // Usa un raggio fisso per evitare calcoli complessi
+        const radius = showNames ? 230 : 220;
+    
+        // Pulisci l'intera area con dimensioni fisse
+        ctx.clearRect(0, 0, 500, 500);
+        
+        // Salva lo stato corrente del contesto
         ctx.save();
         ctx.translate(centerX, centerY);
         ctx.rotate(angle);
-
-        for (let i = 0; i < numSlices; i++) {
+    
+        // Calculate dynamic font size based on number of slices with more conservative scaling
+        const baseFontSize = showNames ? 12 : 20;
+        const maxFontSize = showNames ? 18 : 28; // Reduced max font size
+        
+        // More conservative scaling formula
+        let dynamicFontSize;
+        if (numSlices <= 5) {
+            // Still increase for very few items but more conservatively
+            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (26 - numSlices) * 0.8);
+        } else {
+            // Minimal scaling for more items
+            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (26 - numSlices) * 0.2);
+        }
+        
+        for (var i = 0; i < numSlices; i++) {
             const startAngle = i * sliceAngle;
             const endAngle = startAngle + sliceAngle;
             
@@ -132,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.fill();
             ctx.stroke();
             ctx.closePath();
-
+    
             ctx.save();
             ctx.rotate(startAngle + sliceAngle / 2);
             ctx.fillStyle = 'black';
@@ -140,20 +187,20 @@ document.addEventListener('DOMContentLoaded', () => {
             // Determina se visualizzare nomi o numeri
             const displayText = showNames ? activeItems[i].name : activeItems[i].value.toString();
             
-            // Adatta la dimensione del testo in base alla lunghezza
-            if (showNames) {
-                // Ridotto il font massimo per i nomi per migliorare la leggibilità
-                const fontSize = Math.max(10, Math.min(14, 280 / displayText.length));
-                ctx.font = `bold ${fontSize}px Montserrat`;
-            } else {
-                ctx.font = 'bold 20px Montserrat';
-            }
+            // Use dynamic font size
+            ctx.font = 'bold ' + dynamicFontSize + 'px Montserrat, Arial, sans-serif';
             
             ctx.textAlign = 'right';
             ctx.textBaseline = 'middle';
             
-            // Se sono nomi, posiziona il testo più vicino al bordo esterno
-            const textDistance = showNames ? radius - 15 : radius - 30;
+            // Ensure text stays away from center by maintaining a minimum distance
+            // This prevents text from getting too close to the center as slices get larger
+            const minDistanceFromCenter = radius * 0.4; // Text will never be closer than 40% of radius from center
+            const textDistance = Math.max(
+                minDistanceFromCenter,
+                showNames ? radius - 20 : radius - 40
+            );
+            
             ctx.fillText(displayText, textDistance, 0);
             ctx.restore();
         }
@@ -176,12 +223,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function animate() {
             const elapsed = Date.now() - startTime;
-            const progress = Math.min(elapsed / spinDuration, 1); // Assicura che non superi 1
-            const easing = easeOutQuart(progress); // Cambiato a una funzione di easing più fluida
+            const progress = Math.min(elapsed / spinDuration, 1);
+            const easing = easeOutQuart(progress);
 
             angle = initialAngle + (totalRotation * easing);
-            drawWheel();
             
+            // Use requestAnimationFrame for smoother animation
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
@@ -192,23 +239,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 const selectedIndex = Math.floor(((2 * Math.PI - finalAngle)) / sliceAngle) % activeItems.length;
                 lastSelectedNumber = activeItems[selectedIndex];
                 
-                // Aumenta la dimensione del testo del risultato
                 resultDisplay.style.fontSize = showNames ? '28px' : '24px';
                 resultDisplay.style.fontWeight = 'bold';
                 
                 const resultText = showNames 
-                    ? `È uscito/a: ${lastSelectedNumber.name}`
-                    : `È uscito il numero: ${lastSelectedNumber.value}`;
+                    ? "È uscito/a: " + lastSelectedNumber.name
+                    : "È uscito il numero: " + lastSelectedNumber.value;
                 
                 resultDisplay.textContent = resultText;
                 const hideBtn = document.getElementById('hideNumberButton');
                 if (hideBtn) hideBtn.style.display = 'inline-block';
             }
+            drawWheel();
         }
-        animate();
+        
+        // Start the animation with requestAnimationFrame
+        requestAnimationFrame(animate);
     }
 
-    // Funzione di easing migliorata per una rotazione più fluida
+    // Optimize the easing function
     function easeOutQuart(x) {
         return 1 - Math.pow(1 - x, 4);
     }
@@ -219,13 +268,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mantieni anche il pulsante spin per compatibilità
     spinButton.addEventListener('click', spinWheel);
     
-    editButton.addEventListener('click', () => {
+    editButton.addEventListener('click', function() {
         overlay.style.display = 'block';
         numberEditor.style.display = 'block';
         updateNumberList();
     });
 
-    closeEditor.addEventListener('click', () => {
+    closeEditor.addEventListener('click', function() {
         overlay.style.display = 'none';
         numberEditor.style.display = 'none';
         if (hasChanges) {
@@ -236,16 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Funzione per adattare la dimensione della ruota in base alla visualizzazione
     function adjustWheelSize() {
-        if (showNames) {
-            // Aumenta la dimensione del canvas quando mostriamo i nomi
-            canvas.style.width = '550px';
-            canvas.style.height = '550px';
-        } else {
-            // Ripristina la dimensione originale
-            canvas.style.width = originalCanvasSize.width;
-            canvas.style.height = originalCanvasSize.height;
-        }
-        setupHiDPICanvas();
+        // Usa dimensioni fisse per maggiore compatibilità
+        canvas.width = 500;
+        canvas.height = 500;
         drawWheel();
     }
 
@@ -258,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const newToggleButton = toggleButton.cloneNode(true);
             toggleButton.parentNode.replaceChild(newToggleButton, toggleButton);
             
-            newToggleButton.addEventListener('click', () => {
+            newToggleButton.addEventListener('click', function() {
                 showNames = !showNames;
                 newToggleButton.textContent = showNames ? 'Mostra numeri' : 'Mostra nomi';
                 
@@ -287,65 +329,87 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateNumberList() {
         numberList.innerHTML = '';
         // Assicurati di mostrare tutte le 26 persone in modalità nomi
-        let itemsToShow = showNames ? allNumbers.slice(0, 26) : allNumbers;
+        var itemsToShow = showNames ? allNumbers.slice(0, 26) : allNumbers;
         
-        itemsToShow.forEach((num, index) => {
-            const div = document.createElement('div');
+        for (var i = 0; i < itemsToShow.length; i++) {
+            var num = itemsToShow[i];
+            var index = i;
+            
+            var div = document.createElement('div');
             div.className = 'number-item';
-            const displayText = showNames ? num.name : `${num.value}`;
+            var displayText = showNames ? num.name : "" + num.value;
             
-            div.innerHTML = `
-                <input type="checkbox" id="num${index}" ${num.active ? 'checked' : ''}>
-                <label for="num${index}">${displayText}</label>
-            `;
+            div.innerHTML = 
+                '<input type="checkbox" id="num' + index + '" ' + (num.active ? 'checked' : '') + '>' +
+                '<label for="num' + index + '">' + displayText + '</label>';
             
-            const checkbox = div.querySelector('input');
-            checkbox.addEventListener('change', () => {
-                // Assicurati di aggiornare l'elemento corretto nell'array allNumbers
-                const targetIndex = showNames ? index : index;
-                allNumbers[targetIndex].active = checkbox.checked;
-                hasChanges = true;
-                localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
-                drawWheel();
-            });
+            // Usa una closure per mantenere il riferimento corretto all'indice
+            (function(idx) {
+                var checkbox = div.querySelector('input');
+                checkbox.addEventListener('change', function() {
+                    // Assicurati di aggiornare l'elemento corretto nell'array allNumbers
+                    var targetIndex = showNames ? idx : idx;
+                    allNumbers[targetIndex].active = checkbox.checked;
+                    hasChanges = true;
+                    try {
+                        localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+                    } catch (e) {
+                        console.log("Error saving to localStorage:", e);
+                    }
+                    drawWheel();
+                });
+            })(index);
             
             numberList.appendChild(div);
-        });
+        }
     }
 
     // Aggiungi questa chiamata dopo la definizione di tutte le funzioni
     createToggleButton();
-    addNumberBtn.addEventListener('click', () => {
-        const newNumber = allNumbers.length + 1;
+    
+    addNumberBtn.addEventListener('click', function() {
+        var newNumber = allNumbers.length + 1;
         allNumbers.push({ 
             value: newNumber, 
-            name: `Person ${newNumber}`,
+            name: "Person " + newNumber,
             active: true 
         });
         updateNumberList();
         hasChanges = true;
-        localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+        try {
+            localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+        } catch (e) {
+            console.log("Error saving to localStorage:", e);
+        }
     });
 
-    removeNumberBtn.addEventListener('click', () => {
+    removeNumberBtn.addEventListener('click', function() {
         if (allNumbers.length > 1) {
             allNumbers.pop();
             updateNumberList();
             hasChanges = true;
-            localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+            try {
+                localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+            } catch (e) {
+                console.log("Error saving to localStorage:", e);
+            }
         }
     });
 
-    resetNumbers.addEventListener('click', () => {
-        allNumbers = allNumbers.map(num => ({
-            ...num,
-            active: true
-        }));
+    resetNumbers.addEventListener('click', function() {
+        // Usa un ciclo for tradizionale invece di map
+        for (var i = 0; i < allNumbers.length; i++) {
+            allNumbers[i].active = true;
+        }
         
         updateNumberList();
         drawWheel();
         
-        localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+        try {
+            localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+        } catch (e) {
+            console.log("Error saving to localStorage:", e);
+        }
         
         hasChanges = true;
         
@@ -357,17 +421,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Assicura compatibilità con dati esistenti
     function ensureNamesInData() {
-        let needsUpdate = false;
+        var needsUpdate = false;
         
-        allNumbers.forEach((item, index) => {
-            if (!item.hasOwnProperty('name')) {
-                item.name = namesArray[index] || `Person ${index+1}`;
+        for (var i = 0; i < allNumbers.length; i++) {
+            if (!allNumbers[i].hasOwnProperty('name')) {
+                allNumbers[i].name = namesArray[i] || "Person " + (i+1);
                 needsUpdate = true;
             }
-        });
+        }
         
         if (needsUpdate) {
-            localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+            try {
+                localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+            } catch (e) {
+                console.log("Error saving to localStorage:", e);
+            }
         }
     }
     
@@ -375,8 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Salva la dimensione originale del canvas
     originalCanvasSize = {
-        width: canvas.style.width,
-        height: canvas.style.height
+        width: "500px",
+        height: "500px"
     };
     
     drawWheel();
@@ -384,7 +452,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hideNumberButton) {
         hideNumberButton.onclick = function() {
             if (lastSelectedNumber !== null) {
-                const index = allNumbers.findIndex(n => n.value === lastSelectedNumber.value);
+                // Usa un ciclo for tradizionale per trovare l'indice
+                var index = -1;
+                for (var i = 0; i < allNumbers.length; i++) {
+                    if (allNumbers[i].value === lastSelectedNumber.value) {
+                        index = i;
+                        break;
+                    }
+                }
+                
                 if (index !== -1) {
                     allNumbers[index].active = false;
                     drawWheel();
@@ -392,51 +468,57 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.style.display = 'none';
                     lastSelectedNumber = null;
                     hasChanges = true;
-                    localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+                    try {
+                        localStorage.setItem('wheelNumbers', JSON.stringify(allNumbers));
+                    } catch (e) {
+                        console.log("Error saving to localStorage:", e);
+                    }
                 }
             }
         };
     }
     
-    // Gestione del ridimensionamento della finestra
-    window.addEventListener('resize', () => {
-        setupHiDPICanvas();
+    // Gestione del ridimensionamento della finestra - semplificata
+    window.addEventListener('resize', function() {
+        // Usa dimensioni fisse per il canvas
+        canvas.width = 500;
+        canvas.height = 500;
         drawWheel();
     });
     
     // Gestione dei pulsanti footer
-    const githubIcon = document.getElementById('githubIcon');
-    const infoIcon = document.getElementById('infoIcon');
-    const infoModal = document.getElementById('infoModal');
-    const closeInfoModal = document.getElementById('closeInfoModal');
+    var githubIcon = document.getElementById('githubIcon');
+    var infoIcon = document.getElementById('infoIcon');
+    var infoModal = document.getElementById('infoModal');
+    var closeInfoModal = document.getElementById('closeInfoModal');
     
     // Imposta il testo del modal info
-    const infoContent = document.querySelector('#infoModal p');
+    var infoContent = document.querySelector('#infoModal p');
     if (infoContent) {
-        infoContent.innerHTML = `
-            La ruota della classe 3D è uno strumento utile per selezionare casualmente gli alunni da interrogare. 
-            Utilizza un algoritmo che garantisce una rotazione imprevedibile, con velocità variabile ed effetto easing per un'estrazione equa.
-            <br><br>
-            Permette di aggiungere o rimuovere numeri in qualsiasi momento, nascondere quelli già estratti ed eventualmente ripristinare la configurazione iniziale.
-            <br><br>
-            Il design utilizza colori pastello ed è ottimizzato per un'interfaccia semplice e intuitiva, accessibile da qualsiasi dispositivo. 
-            Se vuoi verificare anche tu, è disponibile il codice open-source su GitHub cliccando il tasto apposito.
-            <br><br>
-            Made by <a href="https://lollo.framer.website" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v0.7.1
-        `;
+        infoContent.innerHTML = 
+            'La ruota della classe 3D è uno strumento utile per selezionare casualmente gli alunni da interrogare. ' +
+            'Utilizza un algoritmo che garantisce una rotazione imprevedibile, con velocità variabile ed effetto easing per un\'estrazione equa.' +
+            '<br><br>' +
+            'Permette di aggiungere o rimuovere numeri in qualsiasi momento, nascondere quelli già estratti ed eventualmente ripristinare la configurazione iniziale.' +
+            '<br><br>' +
+            'Il design utilizza colori pastello ed è ottimizzato per un\'interfaccia semplice e intuitiva, accessibile da qualsiasi dispositivo. ' +
+            'Se vuoi verificare anche tu, è disponibile il codice open-source su GitHub cliccando il tasto apposito.' +
+            '<br><br>' +
+            'Se hai dei dubbi sulla casualità della ruota, ecco la <a href="https://telegra.ph/La-casualità-nella-ruota-della-fortuna-della-3D-come-funziona-03-06" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">spiegazione del codice</a>.' +
+            '<br><br>' +
+            'Made by <a href="https://lollo.framer.website" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v1.0';
     }
-
     
     // Gestione click sul pulsante GitHub
     if (githubIcon) {
-        githubIcon.addEventListener('click', () => {
+        githubIcon.addEventListener('click', function() {
             window.open('https://github.com/lollo21x/wheel', '_blank');
         });
     }
     
     // Gestione click sul pulsante Info
     if (infoIcon) {
-        infoIcon.addEventListener('click', () => {
+        infoIcon.addEventListener('click', function() {
             overlay.style.display = 'block';
             infoModal.style.display = 'block';
         });
@@ -444,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Gestione chiusura modal info
     if (closeInfoModal) {
-        closeInfoModal.addEventListener('click', () => {
+        closeInfoModal.addEventListener('click', function() {
             overlay.style.display = 'none';
             infoModal.style.display = 'none';
         });
