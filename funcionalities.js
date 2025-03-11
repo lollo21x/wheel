@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultDisplay = document.getElementById('result');
     const numberEditor = document.getElementById('numberEditor');
     const overlay = document.getElementById('overlay');
+    const backIcon = document.getElementById('backIcon');
     const numberList = document.getElementById('numberList');
     const closeEditor = document.getElementById('closeEditor');
     const hideNumberButton = document.getElementById('hideNumberButton');
@@ -477,6 +478,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
+
+    if (backIcon) {
+        backIcon.addEventListener('click', function() {
+            window.location.href = 'https://lollo21x.github.io/hub3d/';
+        });
+    }
     
     // Gestione del ridimensionamento della finestra - semplificata
     window.addEventListener('resize', function() {
@@ -506,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
             '<br><br>' +
             'Se hai dei dubbi sulla casualità della ruota, ecco la <a href="https://telegra.ph/La-casualità-nella-ruota-della-fortuna-della-3D-come-funziona-03-06" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">spiegazione del codice</a>.' +
             '<br><br>' +
-            'Creata da <a href="https://lollo.framer.website" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v1.0';
+            'Fatta da <a href="https://lollo.framer.website" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v1.0';
     }
     
     // Gestione click sul pulsante GitHub
