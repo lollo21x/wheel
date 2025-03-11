@@ -248,11 +248,10 @@
         }
         
         .number-item label:after {
-            top: 50%;  /* Center vertically */
-            transform: translateY(-75%) rotate(45deg);  /* Adjust checkmark position */
+            top: 50%;
+            transform: translateY(-75%) rotate(45deg);
         }
         
-        /* Add styles for name display */
         .number-item .name-display {
             display: none;
             color: #666;
@@ -319,7 +318,7 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             z-index: 1000;
         }
         
@@ -329,7 +328,6 @@
             margin-top: 0;
         }
         
-        /* Stile speciale per i numeri 2, 3 e 23 */
         .number-item input[id="num1"] + label:before,  /* per il numero 2 */
         .number-item input[id="num2"] + label:before,  /* per il numero 3 */
         .number-item input[id="num22"] + label:before  /* per il numero 23 */ {
@@ -377,7 +375,6 @@
             background-color: #2196F3;
         }
         
-        /* Modal informazioni */
         #infoModal {
             padding: 30px;
             text-align: left;
@@ -497,7 +494,6 @@
 
     <div class="overlay" id="overlay"></div>
     
-    <!-- Modal per modifica numeri -->
     <div id="numberEditor" class="modal">
         <div class="modal-header">
             <h3>Seleziona i partecipanti da mostrare</h3>
@@ -514,7 +510,6 @@
         </div>
     </div>
     
-    <!-- Modal per informazioni -->
     <div id="infoModal" class="modal">
         <div class="modal-header">
             <h3>Informazioni</h3>
