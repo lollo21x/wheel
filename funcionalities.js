@@ -32,20 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Array con i nomi e cognomi associati ai numeri
     const namesArray = [
-        "Theodore Ambrogi",
-        "Lorenzo Bacalini",
         "Anamika Badial",
         "Sara Burzacca",
         "Alessia Buselli",
         "Arianna Buselli",
         "Lorenzo Cingolani",
         "Gabriele Dipasquale",
-        "Alessandro Eleuteri",
         "Riccardo Gerini",
         "Mario Gulino",
         "Zhennan Hu",
         "Mariana Lopez",
         "Mose' Mariangeli",
+        "Gaia Mancini",
         "Angela Mazzarella",
         "Elena Monno",
         "Federica Nocerino",
@@ -54,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         "Federico Romaldini",
         "Maksym Sachuk",
         "Andrea Santini",
-        "Simone Tardini",
         "Davide Tonti",
         "Igli Xhepa",
         "Jiayi Xiong"
@@ -78,11 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Inizializza l'array se non esiste
             allNumbers = [];
-            for (var i = 0; i < 26; i++) {
+            for (var i = 0; i < 23; i++) {
                 allNumbers.push({
                     value: i + 1,
                     name: namesArray[i] || "Person " + (i+1),
-                    active: true
+                    active: (i !== 0 && i !== 14) // Deseleziona Badial (0) e Nocerino (14)
                 });
             }
         }
@@ -90,11 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Error loading data:", e);
         // Fallback se localStorage non funziona
         allNumbers = [];
-        for (var i = 0; i < 26; i++) {
+        for (var i = 0; i < 23; i++) {
             allNumbers.push({
                 value: i + 1,
                 name: namesArray[i] || "Person " + (i+1),
-                active: true
+                active: (i !== 0 && i !== 14) // Deseleziona Badial (0) e Nocerino (14)
             });
         }
     }
@@ -117,8 +114,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Modifica per compatibilità: Usa cicli for tradizionali invece di filter
         var active = [];
         if (showNames) {
-            // In modalità nomi, mostra tutte le 26 persone (se esistono)
-            for (var i = 0; i < allNumbers.length && i < 26; i++) {
+            // In modalità nomi, mostra tutte le 23 persone (se esistono)
+            for (var i = 0; i < allNumbers.length && i < 23; i++) {
                 if (allNumbers[i].active) {
                     active.push(allNumbers[i]);
                 }
@@ -162,10 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let dynamicFontSize;
         if (numSlices <= 5) {
             // Still increase for very few items but more conservatively
-            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (26 - numSlices) * 0.8);
+            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (23 - numSlices) * 0.8);
         } else {
             // Minimal scaling for more items
-            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (26 - numSlices) * 0.2);
+            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (23 - numSlices) * 0.2);
         }
         
         for (var i = 0; i < numSlices; i++) {
@@ -329,8 +326,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Rimuovi la chiamata a createToggleButton da updateNumberList
     function updateNumberList() {
         numberList.innerHTML = '';
-        // Assicurati di mostrare tutte le 26 persone in modalità nomi
-        var itemsToShow = showNames ? allNumbers.slice(0, 26) : allNumbers;
+        // Assicurati di mostrare tutte le 23 persone in modalità nomi
+        var itemsToShow = showNames ? allNumbers.slice(0, 23) : allNumbers;
         
         for (var i = 0; i < itemsToShow.length; i++) {
             var num = itemsToShow[i];

@@ -1,0 +1,22 @@
+{
+  "name": "wheel",
+  "version": "1.0.0",
+  "description": "Benvenuti nella **ruota della classe 3D**, questa ruota è uno strumento utile e rapido per estrarre gli alunni da interrogare. Vediamo insieme come funziona e come personalizzarla.",
+  "main": "funcionalities.js",
+  "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "node funcionalities.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lollo21x/wheel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/lollo21x/wheel/issues"
+  },
+  "homepage": "https://github.com/lollo21x/wheel#readme"
+}
