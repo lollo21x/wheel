@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
             '<br><br>' +
             'Se hai dei dubbi sulla casualità della ruota, ecco la <a href="https://telegra.ph/La-casualità-nella-ruota-della-fortuna-della-3D-come-funziona-03-06" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">spiegazione del codice</a>.' +
             '<br><br>' +
-            'Fatta da <a href="https://lollo.framer.website" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v1.1';
+            'Fatta da <a href="https://lollo.dpdns.org/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v1.1';
     }
     
     // Gestione click sul pulsante GitHub
