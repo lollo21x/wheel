@@ -41,9 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
         "Riccardo Gerini",
         "Mario Gulino",
         "Zhennan Hu",
-        "Mariana Lopez",
-        "Mose' Mariangeli",
         "Gaia Mancini",
+        "Mose' Mariangeli",
         "Angela Mazzarella",
         "Elena Monno",
         "Federica Nocerino",
@@ -75,11 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Inizializza l'array se non esiste
             allNumbers = [];
-            for (var i = 0; i < 23; i++) {
+            for (var i = 0; i < 22; i++) {
                 allNumbers.push({
                     value: i + 1,
                     name: namesArray[i] || "Person " + (i+1),
-                    active: (i !== 0 && i !== 14) // Deseleziona Badial (0) e Nocerino (14)
+                    active: (i !== 0 && i !== 13) // Deseleziona Badial (0) e Nocerino (13)
                 });
             }
         }
@@ -87,11 +86,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Error loading data:", e);
         // Fallback se localStorage non funziona
         allNumbers = [];
-        for (var i = 0; i < 23; i++) {
+        for (var i = 0; i < 22; i++) {
             allNumbers.push({
                 value: i + 1,
                 name: namesArray[i] || "Person " + (i+1),
-                active: (i !== 0 && i !== 14) // Deseleziona Badial (0) e Nocerino (14)
+                active: (i !== 0 && i !== 13) // Deseleziona Badial (0) e Nocerino (13)
             });
         }
     }
@@ -114,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Modifica per compatibilità: Usa cicli for tradizionali invece di filter
         var active = [];
         if (showNames) {
-            // In modalità nomi, mostra tutte le 23 persone (se esistono)
-            for (var i = 0; i < allNumbers.length && i < 23; i++) {
+            // In modalità nomi, mostra tutte le 22 persone (se esistono)
+            for (var i = 0; i < allNumbers.length && i < 22; i++) {
                 if (allNumbers[i].active) {
                     active.push(allNumbers[i]);
                 }
@@ -159,10 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let dynamicFontSize;
         if (numSlices <= 5) {
             // Still increase for very few items but more conservatively
-            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (23 - numSlices) * 0.8);
+            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (22 - numSlices) * 0.8);
         } else {
             // Minimal scaling for more items
-            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (23 - numSlices) * 0.2);
+            dynamicFontSize = Math.min(maxFontSize, baseFontSize + (22 - numSlices) * 0.2);
         }
         
         for (var i = 0; i < numSlices; i++) {
@@ -326,8 +325,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Rimuovi la chiamata a createToggleButton da updateNumberList
     function updateNumberList() {
         numberList.innerHTML = '';
-        // Assicurati di mostrare tutte le 23 persone in modalità nomi
-        var itemsToShow = showNames ? allNumbers.slice(0, 23) : allNumbers;
+        // Assicurati di mostrare tutte le 22 persone in modalità nomi
+        var itemsToShow = showNames ? allNumbers.slice(0, 22) : allNumbers;
         
         for (var i = 0; i < itemsToShow.length; i++) {
             var num = itemsToShow[i];
@@ -397,8 +396,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resetNumbers.addEventListener('click', function() {
         // Usa un ciclo for tradizionale invece di map
         for (var i = 0; i < allNumbers.length; i++) {
-            // Mantieni Anamika Badial (indice 0) e Federica Nocerino (indice 14) non selezionate
-            allNumbers[i].active = (i !== 0 && i !== 14);
+            // Mantieni Anamika Badial (indice 0) e Federica Nocerino (indice 13) non selezionate
+            allNumbers[i].active = (i !== 0 && i !== 13);
         }
         
         updateNumberList();
