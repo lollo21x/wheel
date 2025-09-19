@@ -397,7 +397,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resetNumbers.addEventListener('click', function() {
         // Usa un ciclo for tradizionale invece di map
         for (var i = 0; i < allNumbers.length; i++) {
-            allNumbers[i].active = true;
+            // Mantieni Anamika Badial (indice 0) e Federica Nocerino (indice 14) non selezionate
+            allNumbers[i].active = (i !== 0 && i !== 14);
         }
         
         updateNumberList();
