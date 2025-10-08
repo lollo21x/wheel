@@ -50,6 +50,8 @@
         #wheelCanvas {
             display: block;
             margin: 0 auto;
+            width: 600px;
+            height: 600px;
         }
         
         .wheel-container {
@@ -139,7 +141,6 @@
             max-width: 900px;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             z-index: 1001;
         }
         
@@ -394,6 +395,10 @@
             background-color: #333;
         }
         
+        #editIcon {
+            background-color: #3b57f8;
+        }
+
         #infoIcon {
             background-color: #3b57f8;
         }
@@ -431,10 +436,7 @@
                 font-size: 24px;
             }
             
-            #wheelCanvas {
-                width: 300px;
-                height: 300px;
-            }
+
             
             .arrow {
                 right: -40px;
@@ -471,6 +473,11 @@
                 height: 9px;
             }
             
+            #wheelCanvas {
+                width: 400px;
+                height: 400px;
+            }
+
             .modal {
                 width: 95%;
                 padding: 15px;
@@ -508,14 +515,12 @@
         <h1 class="main-title">Wheel 4D</h1>
         <div id="result"></div>
         <div class="wheel-container">
-            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <canvas id="wheelCanvas" width="600" height="600"></canvas>
             <div class="arrow"></div>
         </div>
         <div class="controls">
             <button id="spinButton">Gira la ruota</button>
-            <button id="editButton">Modifica partecipanti</button>
             <button id="hideNumberButton">Nascondi partecipante uscito</button>
-            <button id="betaButton">Versione 1.1</button>
         </div>
     </div>
 
@@ -528,6 +533,9 @@
     <div class="footer-icons">
         <div id="githubIcon" class="icon-button">
             <i class="fab fa-github"></i>
+        </div>
+        <div id="editIcon" class="icon-button">
+            <i class="fas fa-edit"></i>
         </div>
         <div id="infoIcon" class="icon-button">
             <i class="fas fa-info"></i>
