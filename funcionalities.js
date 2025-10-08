@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('wheelCanvas');
     const ctx = canvas.getContext('2d');
     const spinButton = document.getElementById('spinButton');
-    const editButton = document.getElementById('editButton');
+    const editIcon = document.getElementById('editIcon');
     const resultDisplay = document.getElementById('result');
     const numberEditor = document.getElementById('numberEditor');
     const overlay = document.getElementById('overlay');
@@ -17,15 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Modifica per compatibilità: Semplifica la configurazione del canvas
     function setupHiDPICanvas() {
-        // Usa un valore di pixel ratio più sicuro per dispositivi vecchi
-        const pixelRatio = 1;
-        
-        // Imposta dimensioni fisse per evitare problemi di rendering
-        canvas.width = 500;
-        canvas.height = 500;
-        
-        // Non usare scale per evitare problemi su dispositivi vecchi
-        // ctx.scale(pixelRatio, pixelRatio);
+        // Imposta dimensioni fisse più grandi per una ruota più visibile
+        canvas.width = 600;
+        canvas.height = 600;
     }
     
     setupHiDPICanvas();
@@ -57,13 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // Aggiungi un flag per indicare se stiamo mostrando nomi o numeri
-    let showNames = false;
+    let showNames = true;
     
-    // Dimensione originale del canvas
-    let originalCanvasSize = {
-        width: "500px",
-        height: "500px"
-    };
+    // Dimensione del canvas
+    const canvasSize = 600;
 
     // Modifica per compatibilità: Usa try-catch per gestire errori di localStorage
     let allNumbers = [];
@@ -78,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 allNumbers.push({
                     value: i + 1,
                     name: namesArray[i] || "Person " + (i+1),
-                    active: (i !== 0 && i !== 13) // Deseleziona Badial (0) e Nocerino (13)
+                    active: (i !== 13) // Deseleziona solo Nocerino (13)
                 });
             }
         }
@@ -90,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allNumbers.push({
                 value: i + 1,
                 name: namesArray[i] || "Person " + (i+1),
-                active: (i !== 0 && i !== 13) // Deseleziona Badial (0) e Nocerino (13)
+                active: (i !== 13) // Deseleziona solo Nocerino (13)
             });
         }
     }
@@ -136,14 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const sliceAngle = (2 * Math.PI) / numSlices;
     
         // Usa dimensioni fisse per il canvas
-        const centerX = 250;
-        const centerY = 250;
-        
-        // Usa un raggio fisso per evitare calcoli complessi
-        const radius = showNames ? 230 : 220;
+        const centerX = 300;
+        const centerY = 300;
+
+        // Usa un raggio fisso
+        const radius = showNames ? 270 : 260;
     
         // Pulisci l'intera area con dimensioni fisse
-        ctx.clearRect(0, 0, 500, 500);
+        ctx.clearRect(0, 0, 600, 600);
         
         // Salva lo stato corrente del contesto
         ctx.save();
@@ -265,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mantieni anche il pulsante spin per compatibilità
     spinButton.addEventListener('click', spinWheel);
     
-    editButton.addEventListener('click', function() {
+    editIcon.addEventListener('click', function() {
         overlay.style.display = 'block';
         numberEditor.style.display = 'block';
         updateNumberList();
@@ -282,25 +273,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Funzione per adattare la dimensione della ruota in base alla visualizzazione
     function adjustWheelSize() {
-        // Usa dimensioni fisse per maggiore compatibilità
-        canvas.width = 500;
-        canvas.height = 500;
+        canvas.width = 600;
+        canvas.height = 600;
         drawWheel();
     }
 
     // Crea il pulsante per cambiare tra nomi e numeri
     function createToggleButton() {
         const toggleButton = document.getElementById('toggleNames');
-        
+
         if (toggleButton) {
             // Rimuovi tutti gli event listener esistenti
             const newToggleButton = toggleButton.cloneNode(true);
             toggleButton.parentNode.replaceChild(newToggleButton, toggleButton);
-            
+
+            // Imposta il testo iniziale corretto
+            newToggleButton.textContent = showNames ? 'Mostra numeri' : 'Mostra nomi';
+
             newToggleButton.addEventListener('click', function() {
                 showNames = !showNames;
                 newToggleButton.textContent = showNames ? 'Mostra numeri' : 'Mostra nomi';
-                
+
                 // Aggiorna prima lo stato
                 if (showNames) {
                     numberList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
@@ -313,12 +306,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     addNumberBtn.style.display = 'inline-flex';
                     removeNumberBtn.style.display = 'inline-flex';
                 }
-                
+
                 // Poi aggiorna la visualizzazione
                 updateNumberList();
                 adjustWheelSize();
                 drawWheel();
             });
+        }
+    }
+
+    // Applica gli stili iniziali in base a showNames
+    function applyInitialStyles() {
+        if (showNames) {
+            numberList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(250px, 1fr))';
+            numberEditor.style.maxWidth = '1000px';
+            addNumberBtn.style.display = 'none';
+            removeNumberBtn.style.display = 'none';
+        } else {
+            numberList.style.gridTemplateColumns = 'repeat(auto-fill, minmax(200px, 1fr))';
+            numberEditor.style.maxWidth = '900px';
+            addNumberBtn.style.display = 'inline-flex';
+            removeNumberBtn.style.display = 'inline-flex';
         }
     }
 
@@ -363,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Aggiungi questa chiamata dopo la definizione di tutte le funzioni
     createToggleButton();
+    applyInitialStyles();
     
     addNumberBtn.addEventListener('click', function() {
         var newNumber = allNumbers.length + 1;
@@ -396,8 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resetNumbers.addEventListener('click', function() {
         // Usa un ciclo for tradizionale invece di map
         for (var i = 0; i < allNumbers.length; i++) {
-            // Mantieni Anamika Badial (indice 0) e Federica Nocerino (indice 13) non selezionate
-            allNumbers[i].active = (i !== 0 && i !== 13);
+            // Mantieni solo Federica Nocerino (indice 13) non selezionata
+            allNumbers[i].active = (i !== 13);
         }
         
         updateNumberList();
@@ -484,9 +493,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Gestione del ridimensionamento della finestra - semplificata
     window.addEventListener('resize', function() {
-        // Usa dimensioni fisse per il canvas
-        canvas.width = 500;
-        canvas.height = 500;
+        canvas.width = 600;
+        canvas.height = 600;
         drawWheel();
     });
     
@@ -510,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
             '<br><br>' +
             'Se hai dei dubbi sulla casualità della ruota, ecco la <a href="https://telegra.ph/La-casualità-nella-ruota-della-fortuna-della-3D-come-funziona-03-06" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">spiegazione del codice</a>.' +
             '<br><br>' +
-            'Fatta da <a href="https://lollo.dpdns.org/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v1.1';
+            'Fatta da <a href="https://lollo.dpdns.org/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">lollo21</a> - v2.3';
     }
     
     // Gestione click sul pulsante GitHub
@@ -535,4 +543,20 @@ document.addEventListener('DOMContentLoaded', () => {
             infoModal.style.display = 'none';
         });
     }
+
+    // Chiudi modal cliccando sull'overlay
+    overlay.addEventListener('click', function() {
+        if (numberEditor.style.display === 'block') {
+            overlay.style.display = 'none';
+            numberEditor.style.display = 'none';
+            if (hasChanges) {
+                drawWheel();
+                hasChanges = false;
+            }
+        }
+        if (infoModal.style.display === 'block') {
+            overlay.style.display = 'none';
+            infoModal.style.display = 'none';
+        }
+    });
 });
