@@ -204,10 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         resultDisplay.textContent = '';
         
-        const spinDuration = 8000 + Math.random() * 4000;
+        // Imposta un nuovo angolo iniziale casuale ad ogni giro per garantire casualità completa
+        angle = Math.random() * 2 * Math.PI;
+        
+        // Aumentata la variabilità della durata per maggiore casualità (da 6 a 14 secondi)
+        const spinDuration = 6000 + Math.random() * 8000;
         const startTime = Date.now();
         const initialAngle = angle;
-        const totalRotation = Math.random() * 4 * Math.PI + 10 * Math.PI;
+        // Aumentato significativamente il range di rotazione per maggiore casualità
+        // Range da 8π (4 giri) a 20π (10 giri) invece di 10π-14π
+        const totalRotation = Math.random() * 12 * Math.PI + 8 * Math.PI;
 
         function animate() {
             const elapsed = Date.now() - startTime;
