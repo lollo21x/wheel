@@ -1,518 +1,578 @@
 <!DOCTYPE html>
 <html lang="it">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clock</title>
+    <title>Wheel</title>
     <link rel="icon" type="image/png" href="icons/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
     <link rel="shortcut icon" href="icons/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Clock" />
+    <meta name="apple-mobile-web-app-title" content="Wheel" />
     <link rel="manifest" href="icons/site.webmanifest" />
-    <link rel="stylesheet" href="style.css?v=3.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-        rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
-    <link rel="preload" as="image"
-        href="https://res.cloudinary.com/dk0f2y0hu/image/upload/v1763217481/christmas-desktop_wel7lu.png"
-        media="(min-width: 769px)">
-    <link rel="preload" as="image"
-        href="https://res.cloudinary.com/dk0f2y0hu/image/upload/v1763217481/christmas-mobile_mrhqra.png"
-        media="(max-width: 768px)">
-    <link rel="preload" as="image"
-        href="https://res.cloudinary.com/dk0f2y0hu/image/upload/v1763583944/st-wallpaper_jm6eya.jpg">
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            font-family: 'Montserrat', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
 
-<body>
-    <script>
-        (function () {
-            try {
-                const savedBackground = localStorage.getItem('clockBackground');
-                if (savedBackground === 'stranger_things') {
-                    document.body.style.backgroundColor = '#000000'; // Dark background for Stranger Things
-                } else if (savedBackground === 'natale') {
-                    document.body.style.backgroundColor = '#c0392b'; // Red background for Christmas
-                } else if (savedBackground && savedBackground !== 'automatico') {
-                    document.body.style.backgroundColor = savedBackground;
-                }
-            } catch (e) {
-                console.error('Error applying initial background:', e);
+        ::selection {
+          background-color: #3b57f8;
+          color: #fff;
+        }
+        
+        .container {
+            text-align: center;
+            margin: 20px;
+            position: relative;
+        }
+        
+        .main-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 40px;
+            color: #3b57f8;
+            margin-bottom: 20px;
+        }
+
+        #backIcon {
+            left: 20px;
+            background-color: #3b57f8;
+        }
+        
+        #wheelCanvas {
+            display: block;
+            margin: 0 auto;
+            width: 600px;
+            height: 600px;
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: fit-content;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .wheel-container:hover {
+            transform: scale(1.02);
+        }
+        
+        .arrow {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-top: 20px solid transparent;
+            border-bottom: 20px solid transparent;
+            border-right: 40px solid #3b57f8;
+            pointer-events: none;
+            border-radius: 3px;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        button {
+            margin: 0 5px;
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: #3b57f8;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+        }
+        
+        button:hover {
+            transform: scale(1.04);
+        }
+        
+        #result {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 500;
+        }
+        
+        #hideNumberButton {
+            display: none;
+            margin-top: 10px;
+        }
+
+        #betaButton {
+            background-color: #b0b0b0;
+        }
+
+        #addNumber {
+            background-color: #14A500;
+        }
+
+        #removeNumber {
+            background-color: #dc3545;
+        }
+        
+        #toggleNames {
+            background-color: #9C27B0;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1001;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-right: 20px;
+        }
+        
+        .modal-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-controls button {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            padding: 0 15px;
+        }
+        
+        .modal-controls #addNumber,
+        .modal-controls #removeNumber {
+            width: 40px;
+            padding: 0;
+            font-size: 24px;
+        }
+        
+        .number-item {
+            margin: 8px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            width: calc(100% - 16px);
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .number-item input[type="checkbox"] {
+            display: none;
+        }
+        
+        .number-item label {
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1.5;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            min-height: 30px;
+        }
+        
+        .number-item label:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            border: 2px solid #3b57f8;
+            border-radius: 50%;
+            background: white;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        
+        .number-item input[type="checkbox"]:checked + label:before {
+            background: #3b57f8;
+        }
+        
+        .number-item label:after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            width: 6px;
+            height: 11px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: translateY(-75%) rotate(45deg);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .number-item input[type="checkbox"]:checked + label:after {
+            opacity: 1;
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 600px) {
+            .number-item {
+                padding: 10px 8px;
             }
-        })();
-    </script>
-    <div class="clock-container">
-        <div class="clock">
-            <span id="hours">00</span><span class="separator">:</span><span id="minutes">00</span><span
-                class="separator">:</span><span id="seconds">00</span>
+            
+            .number-item label {
+                padding-left: 30px;
+                font-size: 14px;
+                line-height: 20px;
+            }
+            
+            .number-item label:before {
+                width: 18px;
+                height: 18px;
+                top: 1px;
+            }
+            
+            .number-item label:after {
+                left: 6px;
+                top: 4px;
+                width: 5px;
+                height: 9px;
+            }
+        }
+        
+        .number-item label:after {
+            top: 50%;  /* Center vertically */
+            transform: translateY(-75%) rotate(45deg);  /* Adjust checkmark position */
+        }
+        
+        /* Add styles for name display */
+        .number-item .name-display {
+            display: none;
+            color: #666;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .number-item.show-name .name-display {
+            display: block;
+        }
+        
+        .number-item:hover {
+            background-color: #e9e9e9;
+        }
+        
+        #numberList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            padding: 20px;
+            max-height: 50vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #3b57f8 #f0f0f0;
+        }
+        
+        #numberList::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        #numberList::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 10px;
+        }
+        
+        #numberList::-webkit-scrollbar-thumb {
+            background-color: #3b57f8;
+            border-radius: 10px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        #resetNumbers {
+            background-color: #dc3545;
+            transition: transform 0.3s ease;
+        }
+        
+        #resetNumbers:hover {
+            transform: scale(1.02);
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+        
+        h3 {
+            font-weight: 600;
+            margin-bottom: 0;
+            margin-top: 0;
+        }
+        
+        /* Stile speciale per Anamika Badial */
+        .number-item input[id="num0"] + label:before {  /* per Anamika Badial */
+            border-color: #14A500;
+        }
+
+        .number-item input[id="num0"]:checked + label:before {
+            background: #14A500;
+        }
+        
+        /* Footer con le icone */
+        .footer-icons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* Nuovo stile per le icone a sinistra */
+        .footer-icons-left {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .icon-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #3b57f8;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .icon-button:hover {
+            transform: scale(1.05);
+        }
+        
+        #githubIcon {
+            background-color: #333;
+        }
+        
+        #editIcon {
+            background-color: #3b57f8;
+        }
+
+        #infoIcon {
+            background-color: #3b57f8;
+        }
+        
+        #backIcon {
+            background-color: #3b57f8;
+        }
+        
+        /* Modal informazioni */
+        #infoModal {
+            padding: 30px;
+            text-align: left;
+        }
+        
+        #infoModal h3 {
+            margin-bottom: 20px;
+        }
+        
+        #infoModal p {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        #infoModal .modal-footer {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 600px) {
+            .main-title {
+                font-size: 24px;
+            }
+            
+
+            
+            .arrow {
+                right: -40px;
+                border-top: 15px solid transparent;
+                border-bottom: 15px solid transparent;
+                border-right: 30px solid #3b57f8;
+                border-radius: 3px;
+            }
+            
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin: 5px;
+            }
+            
+            #result {
+                font-size: 20px;
+            }
+            
+            .number-item label {
+                font-size: 14px;
+                padding-left: 30px;
+            }
+            
+            .number-item label:before {
+                width: 18px;
+                height: 18px;
+            }
+            
+            .number-item label:after {
+                left: 6px;
+                top: 3px;
+                width: 5px;
+                height: 9px;
+            }
+            
+            #wheelCanvas {
+                width: 400px;
+                height: 400px;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            #numberList {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .footer-icons,
+            .footer-icons-left {
+                bottom: 10px;
+            }
+            
+            .footer-icons {
+                right: 10px;
+            }
+            
+            .footer-icons-left {
+                left: 10px;
+            }
+            
+            .icon-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="main-title">Wheel 4D</h1>
+        <div id="result"></div>
+        <div class="wheel-container">
+            <canvas id="wheelCanvas" width="600" height="600"></canvas>
+            <div class="arrow"></div>
         </div>
-        <div class="date" id="date"></div>
+        <div class="controls">
+            <button id="spinButton">Gira la ruota</button>
+            <button id="hideNumberButton">Nascondi partecipante uscito</button>
+        </div>
     </div>
 
-    <div id="githubIcon" class="icon-button">
-        <i class="fab fa-github"></i>
+    <div class="footer-icons-left">
+        <div id="backIcon" class="icon-button">
+            <i class="fas fa-arrow-left"></i>
+        </div>
     </div>
-    <div id="backIcon" class="icon-button">
-        <i class="fas fa-arrow-left"></i>
-    </div>
-    <div id="scheduleIcon" class="icon-button">
-        <i class="fas fa-table"></i>
-    </div>
-    <div id="eventsCalendarIcon" class="icon-button">
-        <i class="fas fa-calendar-alt"></i>
-    </div>
-    <div id="calendarIcon" class="icon-button">
-        <i class="fas fa-tree"></i>
-    </div>
-    <div id="settingsIcon" class="icon-button">
-        <i class="fas fa-cog"></i>
-    </div>
-    <div id="infoIcon" class="icon-button">
-        <i class="fas fa-info"></i>
+
+    <div class="footer-icons">
+        <div id="githubIcon" class="icon-button">
+            <i class="fab fa-github"></i>
+        </div>
+        <div id="editIcon" class="icon-button">
+            <i class="fas fa-edit"></i>
+        </div>
+        <div id="infoIcon" class="icon-button">
+            <i class="fas fa-info"></i>
+        </div>
     </div>
 
     <div class="overlay" id="overlay"></div>
-    <div id="settingsModal" class="modal">
+    
+    <!-- Modal per modifica numeri -->
+    <div id="numberEditor" class="modal">
         <div class="modal-header">
-            <h3>Impostazioni</h3>
-        </div>
-        <div class="settings-content">
-            <div class="settings-section">
-                <h4>Font</h4>
-                <select id="fontSelect">
-                    <option value="Montserrat">Montserrat</option>
-                    <option value="Space Mono">Space Mono</option>
-                    <option value="Syne">Syne</option>
-                    <option value="Rubik">Rubik</option>
-                    <option value="Instrument Serif">Instrument Serif</option>
-                    <option value="Orbitron">Orbitron</option>
-                </select>
-                <select id="weightSelect">
-                    <option value="300">Leggero</option>
-                    <option value="400">Normale</option>
-                    <option value="600">Semi-Grassetto</option>
-                    <option value="900">Grassetto</option>
-                </select>
-            </div>
-            <div class="settings-section">
-                <h4>Sfondo</h4>
-                <select id="backgroundSelect">
-                    <option value="automatico">Automatico</option>
-                    <option value="#D4D4D4">Grigio</option>
-                    <option value="#FAD2E3">Rosa</option>
-                    <option value="#BDEAFC">Celeste</option>
-                    <option value="#ffffff">Bianco</option>
-                    <option value="#CEF5CE">Verde</option>
-                    <option value="#FAE6C0">Arancione</option>
-                    <option value="#F0C9F2">Viola</option>
-                    <option value="natale">TEMA - Natale</option>
-                    <option value="stranger_things">TEMA - Stranger Things</option>
-                </select>
-            </div>
-            <div class="settings-section">
-                <h4>Avanzate</h4>
-                <button id="editEventsBtn">Modifica eventi</button>
-                <button id="forceSync">Forza Sincronizzazione</button>
-                <div class="toggle-container">
-                    <span class="toggle-label">Mostra offset</span>
-                    <label class="toggle" for="showOffsetToggle">
-                        <input type="checkbox" id="showOffsetToggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-container">
-                    <span class="toggle-label">Mostra orario scolastico</span>
-                    <label class="toggle" for="showScheduleToggle">
-                        <input type="checkbox" id="showScheduleToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
+            <h3>Seleziona i partecipanti da mostrare</h3>
+            <div class="modal-controls">
+                <button id="toggleNames">Mostra nomi</button>
+                <button id="addNumber">+</button>
+                <button id="removeNumber">-</button>
             </div>
         </div>
+        <div id="numberList"></div>
         <div class="modal-footer">
-            <div></div>
-            <button id="closeSettingsModal">Salva</button>
+            <button id="resetNumbers">Ripristina tutti i partecipanti</button>
+            <button id="closeEditor">Chiudi</button>
         </div>
     </div>
-
+    
+    <!-- Modal per informazioni -->
     <div id="infoModal" class="modal">
         <div class="modal-header">
             <h3>Informazioni</h3>
         </div>
-        <p></p>
+        <p>Ciao!</p>
         <div class="modal-footer">
-            <div></div>
+            <div></div> <!-- Empty div to push the close button to the right -->
             <button id="closeInfoModal">Chiudi</button>
         </div>
     </div>
-
-    <div id="calendarModal" class="modal">
-        <div class="calendar-header-wrapper">
-            <div class="snow-container"></div>
-            <div class="calendar-header-content">
-                <span id="daysRemaining" class="days-count"></span>
-                <span class="countdown-label">giorni a Natale</span>
-            </div>
-        </div>
-        <div class="calendar-body">
-            <div class="calendar-grid" id="adventGrid">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div></div>
-            <button id="closeCalendarModal">Chiudi</button>
-        </div>
-    </div>
-
-    <div id="scheduleModal" class="modal">
-        <div class="modal-header">
-            <h3>Orario scolastico</h3>
-        </div>
-        <div class="schedule-table-container">
-            <table id="scheduleTable" class="schedule-table">
-                <thead>
-                    <tr>
-                        <th>Lunedì</th>
-                        <th>Martedì</th>
-                        <th>Mercoledì</th>
-                        <th>Giovedì</th>
-                        <th>Venerdì</th>
-                        <th>Sabato</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td rowspan="2">Scienze</td>
-                        <td>Informatica</td>
-                        <td rowspan="2">Scienze</td>
-                        <td>Inglese</td>
-                        <td rowspan="2">Ginnastica</td>
-                        <td>Storia</td>
-                    </tr>
-                    <tr>
-                        <td>Religione</td>
-                        <td>Storia</td>
-                        <td>Arte</td>
-                    </tr>
-                    <tr>
-                        <td rowspan="2">Matematica</td>
-                        <td>Fisica</td>
-                        <td>Italiano</td>
-                        <td>Filosofia</td>
-                        <td rowspan="2">Italiano</td>
-                        <td>Filosofia</td>
-                    </tr>
-                    <tr>
-                        <td>Inglese</td>
-                        <td>Arte</td>
-                        <td>Fisica</td>
-                        <td>Informatica</td>
-                    </tr>
-                    <tr>
-                        <td>Inglese</td>
-                        <td>Italiano</td>
-                        <td>Matematica</td>
-                        <td>Scienze</td>
-                        <td>Matematica</td>
-                        <td>Fisica</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="modal-footer">
-            <div></div>
-            <button id="closeScheduleModal">Chiudi</button>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-    <div id="passcodeModal" class="modal">
-        <div class="modal-header">
-            <h3>Accesso Gestione Eventi</h3>
-        </div>
-        <div class="passcode-content">
-            <p style="margin-bottom: 20px; color: #666;">Inserisci il codice di accesso a 4 cifre:</p>
-            <input type="text" id="passcodeInput" maxlength="4" pattern="[0-9]*" inputmode="numeric" placeholder="0000"
-                style="width: 100%; padding: 15px; font-size: 1.5rem; text-align: center; 
-                   border: 2px solid #ddd; border-radius: 15px; font-family: 'Consolas', monospace; letter-spacing: 0.5em;">
-            <div id="passcodeError" style="color: #ff6b6b; margin-top: 10px; display: none; text-align: center;">
-                Codice non valido. Riprova.
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button id="cancelPasscode">Annulla</button>
-            <button id="submitPasscode">Conferma</button>
-        </div>
-    </div>
-
-    <div id="eventManagementModal" class="modal event-management-modal">
-        <div class="modal-header">
-            <h3>Gestione Eventi</h3>
-        </div>
-        <div class="event-management-content">
-            <button id="newEventBtn" class="new-event-btn">
-                <span style="font-size: 1.5rem; margin-right: 8px;">+</span> Nuovo evento
-            </button>
-            <div id="eventsList" class="events-list">
-            </div>
-        </div>
-        <div class="modal-footer">
-            <div></div>
-            <button id="closeEventManagement">Chiudi</button>
-        </div>
-    </div>
-
-    <div id="eventFormModal" class="modal event-form-modal">
-        <div class="modal-header">
-            <h3 id="eventFormTitle">Nuovo Evento</h3>
-        </div>
-        <div class="event-form-content">
-            <div class="form-group">
-                <label>Tipo</label>
-                <div class="type-toggle">
-                    <button class="type-option active" data-type="interrogazione">Interrogazione</button>
-                    <button class="type-option" data-type="verifica">Verifica</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="eventSubject">Materia</label>
-                <select id="eventSubject">
-                    <option value="">Seleziona materia...</option>
-                    <option value="Arte">Arte</option>
-                    <option value="Fisica">Fisica</option>
-                    <option value="Filosofia">Filosofia</option>
-                    <option value="Ginnastica">Ginnastica</option>
-                    <option value="Informatica">Informatica</option>
-                    <option value="Inglese">Inglese</option>
-                    <option value="Italiano">Italiano</option>
-                    <option value="Matematica">Matematica</option>
-                    <option value="Religione">Religione</option>
-                    <option value="Scienze">Scienze</option>
-                    <option value="Storia">Storia</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="eventDate">Data</label>
-                <input type="date" id="eventDate">
-            </div>
-            <div class="form-group">
-                <label for="eventTimeSlot">Ora</label>
-                <select id="eventTimeSlot">
-                    <option value="">Seleziona fascia oraria...</option>
-                    <option value="8:15-9:15">8:15-9:15</option>
-                    <option value="9:15-10:20">9:15-10:20</option>
-                    <option value="10:20-11:15">10:20-11:15</option>
-                    <option value="11:15-12:15">11:15-12:15</option>
-                    <option value="12:15-13:15">12:15-13:15</option>
-                </select>
-            </div>
-            <div class="form-group" id="volunteersGroup" style="display: none;">
-                <label>Volontari</label>
-                <button type="button" id="selectVolunteersBtn" class="select-volunteers-btn">
-                    Seleziona volontari...
-                </button>
-                <div id="selectedVolunteersList" class="selected-volunteers"></div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button id="cancelEventBtn">Annulla</button>
-            <div style="display: flex; gap: 10px;">
-                <button id="deleteEventBtn" style="background-color: #d63031; display: none;">Elimina evento</button>
-                <button id="saveEventBtn">Salva</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="volunteersModal" class="modal volunteers-modal">
-        <div class="modal-header">
-            <h3>Seleziona Volontari</h3>
-        </div>
-        <div class="volunteers-content">
-            <div class="volunteers-grid">
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Anamika Badial">
-                    <span>Anamika Badial</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Sara Burzacca">
-                    <span>Sara Burzacca</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Alessia Buselli">
-                    <span>Alessia Buselli</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Arianna Buselli">
-                    <span>Arianna Buselli</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Lorenzo Cingolani">
-                    <span>Lorenzo Cingolani</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Gabriele Dipasquale">
-                    <span>Gabriele Dipasquale</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Riccardo Gerini">
-                    <span>Riccardo Gerini</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Mario Gulino">
-                    <span>Mario Gulino</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Zhennan Hu">
-                    <span>Zhennan Hu</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Gaia Mancini">
-                    <span>Gaia Mancini</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Mose' Mariangeli">
-                    <span>Mose' Mariangeli</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Angela Mazzarella">
-                    <span>Angela Mazzarella</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Elena Monno">
-                    <span>Elena Monno</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Federica Nocerino">
-                    <span>Federica Nocerino</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Riccardo Persigilli">
-                    <span>Riccardo Persigilli</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Marco Radatti">
-                    <span>Marco Radatti</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Federico Romaldini">
-                    <span>Federico Romaldini</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Maksym Sachuk">
-                    <span>Maksym Sachuk</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Andrea Santini">
-                    <span>Andrea Santini</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Davide Tonti">
-                    <span>Davide Tonti</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Igli Xhepa">
-                    <span>Igli Xhepa</span>
-                </label>
-                <label class="volunteer-checkbox">
-                    <input type="checkbox" value="Jiayi Xiong">
-                    <span>Jiayi Xiong</span>
-                </label>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button id="cancelVolunteers">Annulla</button>
-            <button id="confirmVolunteers">Conferma</button>
-        </div>
-    </div>
-
-    <!-rim- Event Preview Modal -->
-        <div id="eventPreviewModal" class="modal event-preview-modal">
-            <div class="modal-header">
-                <h3 id="previewSubject">Materia</h3>
-                <div id="previewTypeChip" class="preview-type-chip">Tipo</div>
-            </div>
-            <div class="preview-content">
-                <div class="preview-countdown" id="previewCountdown">
-                </div>
-                <div class="preview-row">
-                    <span class="preview-label"><i class="far fa-calendar-alt"></i> Data:</span>
-                    <span id="previewDate" class="preview-value">Data</span>
-                </div>
-                <div class="preview-row">
-                    <span class="preview-label"><i class="far fa-clock"></i> Ora:</span>
-                    <span id="previewTime" class="preview-value">Ora</span>
-                </div>
-                <div class="preview-section" id="previewVolunteersSection" style="display: none;">
-                    <span class="preview-label"><i class="fas fa-users"></i> Volontari:</span>
-                    <ul id="previewVolunteersList" class="preview-volunteers-list"></ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div></div>
-                <button id="closePreviewModal">Chiudi</button>
-            </div>
-        </div>
-
-        <div id="monthCalendarModal" class="modal month-calendar-modal">
-            <div class="modal-header calendar-nav-header">
-                <button id="prevMonthBtn" class="calendar-nav-btn"><i class="fas fa-chevron-left"></i></button>
-                <h3 id="calendarMonthYear">Mese Anno</h3>
-                <button id="nextMonthBtn" class="calendar-nav-btn"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="calendar-body">
-                <div class="calendar-weekdays">
-                    <div>Lun</div>
-                    <div>Mar</div>
-                    <div>Mer</div>
-                    <div>Gio</div>
-                    <div>Ven</div>
-                    <div>Sab</div>
-                    <div>Dom</div>
-                </div>
-                <div class="month-calendar-grid" id="monthCalendarGrid">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div></div>
-                <button id="closeMonthCalendarModal">Chiudi</button>
-            </div>
-        </div>
-        <div id="dayDetailModal" class="modal day-detail-modal">
-            <div class="modal-header">
-                <h3 id="dayDetailTitle">Data</h3>
-            </div>
-            <div class="day-detail-content">
-                <div id="dayDetailList" class="day-detail-list">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div></div>
-                <button id="closeDayDetailModal">Chiudi</button>
-            </div>
-        </div>
-
-        <script src="script.js?v=4.0"></script>
+    
+    <script src="funcionalities.js"></script>
 </body>
-
 </html>
