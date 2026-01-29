@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +18,7 @@
             font-family: 'Montserrat', sans-serif;
             box-sizing: border-box;
         }
-        
+
         body {
             margin: 0;
             padding: 0;
@@ -25,16 +26,16 @@
         }
 
         ::selection {
-          background-color: #3b57f8;
-          color: #fff;
+            background-color: #3b57f8;
+            color: #fff;
         }
-        
+
         .container {
             text-align: center;
             margin: 20px;
             position: relative;
         }
-        
+
         .main-title {
             font-family: 'Montserrat', sans-serif;
             font-size: 40px;
@@ -46,14 +47,14 @@
             left: 20px;
             background-color: #3b57f8;
         }
-        
+
         #wheelCanvas {
             display: block;
             margin: 0 auto;
             width: 600px;
             height: 600px;
         }
-        
+
         .wheel-container {
             position: relative;
             width: fit-content;
@@ -61,11 +62,11 @@
             cursor: pointer;
             transition: transform 0.3s ease;
         }
-        
+
         .wheel-container:hover {
             transform: scale(1.02);
         }
-        
+
         .arrow {
             position: absolute;
             right: -60px;
@@ -79,11 +80,11 @@
             pointer-events: none;
             border-radius: 3px;
         }
-        
+
         .controls {
             margin-top: 20px;
         }
-        
+
         button {
             margin: 0 5px;
             padding: 12px 24px;
@@ -96,17 +97,43 @@
             font-weight: 500;
             transition: transform 0.3s ease;
         }
-        
+
         button:hover {
             transform: scale(1.04);
         }
-        
+
+        #spinButton,
+        #hideNumberButton {
+            padding: 12px 28px;
+            font-size: 19px;
+        }
+
         #result {
-            margin-bottom: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #3b57f8;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
             font-size: 24px;
             font-weight: 500;
+            z-index: 10;
+            display: none;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.9);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            pointer-events: none;
         }
-        
+
+        #result.open {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
         #hideNumberButton {
             display: none;
             margin-top: 10px;
@@ -123,11 +150,11 @@
         #removeNumber {
             background-color: #dc3545;
         }
-        
+
         #toggleNames {
             background-color: #9C27B0;
         }
-        
+
         .modal {
             display: none;
             position: fixed;
@@ -143,7 +170,7 @@
             overflow-y: auto;
             z-index: 1001;
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -151,13 +178,13 @@
             margin-bottom: 20px;
             padding-right: 20px;
         }
-        
+
         .modal-controls {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         .modal-controls button {
             height: 40px;
             display: flex;
@@ -166,14 +193,14 @@
             font-weight: 500;
             padding: 0 15px;
         }
-        
+
         .modal-controls #addNumber,
         .modal-controls #removeNumber {
             width: 40px;
             padding: 0;
             font-size: 24px;
         }
-        
+
         .number-item {
             margin: 8px;
             padding: 8px;
@@ -184,11 +211,11 @@
             border-radius: 8px;
             transition: background-color 0.2s;
         }
-        
+
         .number-item input[type="checkbox"] {
             display: none;
         }
-        
+
         .number-item label {
             position: relative;
             padding-left: 35px;
@@ -200,7 +227,7 @@
             width: 100%;
             min-height: 30px;
         }
-        
+
         .number-item label:before {
             content: '';
             position: absolute;
@@ -215,11 +242,11 @@
             transition: all 0.3s ease;
             box-sizing: border-box;
         }
-        
-        .number-item input[type="checkbox"]:checked + label:before {
+
+        .number-item input[type="checkbox"]:checked+label:before {
             background: #3b57f8;
         }
-        
+
         .number-item label:after {
             content: '';
             position: absolute;
@@ -233,29 +260,29 @@
             opacity: 0;
             transition: all 0.3s ease;
         }
-        
-        .number-item input[type="checkbox"]:checked + label:after {
+
+        .number-item input[type="checkbox"]:checked+label:after {
             opacity: 1;
         }
-        
+
         /* Mobile-specific styles */
         @media (max-width: 600px) {
             .number-item {
                 padding: 10px 8px;
             }
-            
+
             .number-item label {
                 padding-left: 30px;
                 font-size: 14px;
                 line-height: 20px;
             }
-            
+
             .number-item label:before {
                 width: 18px;
                 height: 18px;
                 top: 1px;
             }
-            
+
             .number-item label:after {
                 left: 6px;
                 top: 4px;
@@ -263,12 +290,14 @@
                 height: 9px;
             }
         }
-        
+
         .number-item label:after {
-            top: 50%;  /* Center vertically */
-            transform: translateY(-75%) rotate(45deg);  /* Adjust checkmark position */
+            top: 50%;
+            /* Center vertically */
+            transform: translateY(-75%) rotate(45deg);
+            /* Adjust checkmark position */
         }
-        
+
         /* Add styles for name display */
         .number-item .name-display {
             display: none;
@@ -280,11 +309,11 @@
         .number-item.show-name .name-display {
             display: block;
         }
-        
+
         .number-item:hover {
             background-color: #e9e9e9;
         }
-        
+
         #numberList {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -295,21 +324,21 @@
             scrollbar-width: thin;
             scrollbar-color: #3b57f8 #f0f0f0;
         }
-        
+
         #numberList::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         #numberList::-webkit-scrollbar-track {
             background: #f0f0f0;
             border-radius: 10px;
         }
-        
+
         #numberList::-webkit-scrollbar-thumb {
             background-color: #3b57f8;
             border-radius: 10px;
         }
-        
+
         .modal-footer {
             display: flex;
             justify-content: space-between;
@@ -318,16 +347,16 @@
             padding-top: 10px;
             border-top: 1px solid #eee;
         }
-        
+
         #resetNumbers {
             background-color: #dc3545;
             transition: transform 0.3s ease;
         }
-        
+
         #resetNumbers:hover {
             transform: scale(1.02);
         }
-        
+
         .overlay {
             display: none;
             position: fixed;
@@ -335,26 +364,27 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(10px);
             z-index: 1000;
         }
-        
+
         h3 {
             font-weight: 600;
             margin-bottom: 0;
             margin-top: 0;
         }
-        
+
         /* Stile speciale per Anamika Badial */
-        .number-item input[id="num0"] + label:before {  /* per Anamika Badial */
+        .number-item input[id="num0"]+label:before {
+            /* per Anamika Badial */
             border-color: #14A500;
         }
 
-        .number-item input[id="num0"]:checked + label:before {
+        .number-item input[id="num0"]:checked+label:before {
             background: #14A500;
         }
-        
+
         /* Footer con le icone */
         .footer-icons {
             position: fixed;
@@ -363,7 +393,7 @@
             display: flex;
             gap: 15px;
         }
-        
+
         /* Nuovo stile per le icone a sinistra */
         .footer-icons-left {
             position: fixed;
@@ -372,7 +402,7 @@
             display: flex;
             gap: 15px;
         }
-        
+
         .icon-button {
             width: 50px;
             height: 50px;
@@ -386,15 +416,15 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .icon-button:hover {
             transform: scale(1.05);
         }
-        
+
         #githubIcon {
             background-color: #333;
         }
-        
+
         #editIcon {
             background-color: #3b57f8;
         }
@@ -402,26 +432,26 @@
         #infoIcon {
             background-color: #3b57f8;
         }
-        
+
         #backIcon {
             background-color: #3b57f8;
         }
-        
+
         /* Modal informazioni */
         #infoModal {
             padding: 30px;
             text-align: left;
         }
-        
+
         #infoModal h3 {
             margin-bottom: 20px;
         }
-        
+
         #infoModal p {
             line-height: 1.6;
             margin-bottom: 20px;
         }
-        
+
         #infoModal .modal-footer {
             display: flex;
             justify-content: space-between;
@@ -430,14 +460,14 @@
             padding-top: 10px;
             border-top: 1px solid #eee;
         }
-        
+
         @media (max-width: 600px) {
             .main-title {
                 font-size: 24px;
             }
-            
 
-            
+
+
             .arrow {
                 right: -40px;
                 border-top: 15px solid transparent;
@@ -445,34 +475,34 @@
                 border-right: 30px solid #3b57f8;
                 border-radius: 3px;
             }
-            
+
             button {
                 padding: 10px 20px;
                 font-size: 14px;
                 margin: 5px;
             }
-            
+
             #result {
                 font-size: 20px;
             }
-            
+
             .number-item label {
                 font-size: 14px;
                 padding-left: 30px;
             }
-            
+
             .number-item label:before {
                 width: 18px;
                 height: 18px;
             }
-            
+
             .number-item label:after {
                 left: 6px;
                 top: 3px;
                 width: 5px;
                 height: 9px;
             }
-            
+
             #wheelCanvas {
                 width: 400px;
                 height: 400px;
@@ -482,39 +512,95 @@
                 width: 95%;
                 padding: 15px;
             }
-            
+
             #numberList {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: 10px;
                 padding: 10px;
             }
-            
+
             .footer-icons,
             .footer-icons-left {
                 bottom: 10px;
             }
-            
+
             .footer-icons {
                 right: 10px;
             }
-            
+
             .footer-icons-left {
                 left: 10px;
             }
-            
+
+            .icon-button {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+
             .icon-button {
                 width: 40px;
                 height: 40px;
                 font-size: 18px;
             }
         }
+
+        /* Clock Pill Styles */
+        .clock-pill {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #3b57f8;
+            color: white;
+            padding: 0 20px;
+            height: 50px;
+            border-radius: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 500;
+            z-index: 100;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .clock-pill:hover {
+            transform: scale(1.05);
+        }
+
+        /* Modal Animation Styles */
+        .modal {
+            display: none;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.95);
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal.open {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .overlay {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .overlay.open {
+            display: block;
+            opacity: 1;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h1 class="main-title">Wheel 4D</h1>
-        <div id="result"></div>
+
         <div class="wheel-container">
+            <div id="result"></div>
             <canvas id="wheelCanvas" width="600" height="600"></canvas>
             <div class="arrow"></div>
         </div>
@@ -522,6 +608,10 @@
             <button id="spinButton">Gira la ruota</button>
             <button id="hideNumberButton">Nascondi partecipante uscito</button>
         </div>
+    </div>
+
+    <div id="clockPill" class="clock-pill">
+        <span id="clockTime">--:--</span>
     </div>
 
     <div class="footer-icons-left">
@@ -543,7 +633,7 @@
     </div>
 
     <div class="overlay" id="overlay"></div>
-    
+
     <!-- Modal per modifica numeri -->
     <div id="numberEditor" class="modal">
         <div class="modal-header">
@@ -560,7 +650,7 @@
             <button id="closeEditor">Chiudi</button>
         </div>
     </div>
-    
+
     <!-- Modal per informazioni -->
     <div id="infoModal" class="modal">
         <div class="modal-header">
@@ -572,7 +662,8 @@
             <button id="closeInfoModal">Chiudi</button>
         </div>
     </div>
-    
+
     <script src="funcionalities.js"></script>
 </body>
+
 </html>
