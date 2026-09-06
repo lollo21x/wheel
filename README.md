@@ -1,6 +1,6 @@
-# 🎉 La ruota della classe 4D
+# 🎉 La ruota della classe 5D
 
-Benvenuti nella **ruota della classe 4D**, questa ruota è uno strumento utile e rapido per estrarre gli alunni da interrogare. Vediamo insieme come funziona e come personalizzarla.
+Benvenuti nella **ruota della classe 5D**, questa ruota è uno strumento utile e rapido per estrarre gli alunni da interrogare. Vediamo insieme come funziona e come personalizzarla.
 
 ## 🔄 Perché la Ruota è Casuale?
 
