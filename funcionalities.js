@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (backIcon) {
         backIcon.addEventListener('click', function () {
-            window.location.href = 'https://hub4d.lollo.dpdns.org';
+            window.location.href = 'https://hub5d.lollo.dpdns.org';
         });
     }
 
