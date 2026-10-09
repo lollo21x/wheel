@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 allNumbers.push({
                     value: i + 1,
                     name: namesArray[i] || "Person " + (i + 1),
-                    active: (i !== 13) // Deseleziona solo Nocerino (13)
+                    active: true
                 });
             }
         }
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allNumbers.push({
                 value: i + 1,
                 name: namesArray[i] || "Person " + (i + 1),
-                active: (i !== 13) // Deseleziona solo Nocerino (13)
+                active: true
             });
         }
     }
@@ -416,8 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resetNumbers.addEventListener('click', function () {
         // Usa un ciclo for tradizionale invece di map
         for (var i = 0; i < allNumbers.length; i++) {
-            // Mantieni solo Federica Nocerino (indice 13) non selezionata
-            allNumbers[i].active = (i !== 13);
+            allNumbers[i].active = true;
         }
 
         updateNumberList();
