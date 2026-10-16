@@ -563,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clockPill = document.getElementById('clockPill');
     if (clockPill) {
         clockPill.addEventListener('click', () => {
-            window.location.href = 'https://clock4d.lollo.dpdns.org';
+            window.location.href = 'https://clock5d.lollo.dpdns.org';
         });
     }
 
